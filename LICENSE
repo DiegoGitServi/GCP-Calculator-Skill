@@ -1,0 +1,22 @@
+Copyright (c) 2026 Información Localizada S.A.S (Servinformación). All rights reserved.
+
+This repository is published for transparency and for use by the personnel of
+Información Localizada S.A.S and parties it expressly authorizes. It is NOT
+open-source software.
+
+Permission is granted, free of charge, to:
+  1. View and read the contents of this repository.
+  2. Use the skills it contains (cotizar-gcp-nl, cotizar-gcp-nl-en and the Gemini
+     package) internally, for the purpose of preparing Google Cloud quotations.
+
+Without prior written permission from Información Localizada S.A.S, you may NOT:
+  - redistribute, republish or sublicense this repository or any part of it;
+  - sell it, or include it in a commercial product or service offered to third parties;
+  - remove or alter this notice.
+
+Pricing is computed by Google's official Google Cloud Pricing Calculator, not by this
+repository. "Google", "Google Cloud" and "Gemini" are trademarks of Google LLC; this
+project is independent and is not affiliated with, endorsed by or sponsored by Google.
+
+THE CONTENT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. QUOTATIONS GENERATED
+WITH IT ARE ESTIMATES AND MUST BE VERIFIED AGAINST THE OFFICIAL CALCULATOR BEFORE USE.

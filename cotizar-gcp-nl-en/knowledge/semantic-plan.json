@@ -1,0 +1,4043 @@
+{
+  "_comment": "Mapa SEMÁNTICO: clave amigable de spec → fieldId(s) de cable, por producto fino. Lo consume src/semanticPlan.ts para que la gema/skill emitan `specs` en lenguaje de negocio (sin fieldIds ni slugs) y el motor arme el cable de forma DETERMINISTA. Los valores de campos marcados {select:true} se resuelven contra las opciones del esquema (acepta slug, etiqueta humana o aproximación). {unidad:N} fuerza la unidad del nodo numérico (17=TiB, 16=GiB) → permite specs como storage_tib. 'servicio' opcional: sin él se usa el primer servicio del esquema; con 'param' una spec elige el servicio. 'camposPorVariante' (clave = opción de servicio.opciones): cuando los fieldIds dependen del servicio elegido (p. ej. Cloud SQL MySQL/PostgreSQL/SQL Server). Autorado a mano (conocimiento curado).",
+  "_productos": {
+    "kubernetes_engine": {
+      "_nota": "El tipo de disco (276) viene SIN default en el esquema, asi que no viaja y deja INERTE al tamano de disco (277): el RPC no cotizaba ningun SKU de disco y sub-cotizabamos, mientras la calculadora al abrir el link SI aplica su default y lo cobra (medido: 5 nodos x 100 GiB = +$50.00, o sea $0.10/GiB = tarifa de balanced). Por eso `defaults` lo fija; un plan que traiga disco_tipo explicito sigue mandando.",
+      "servicio": {
+        "fixed": 23,
+        "soloServicio": true
+      },
+      "defaults": {
+        "276": "balanced-persistent-disk"
+      },
+      "campos": {
+        "nodos": 260,
+        "tipo_maquina": 268,
+        "disco_tipo": {
+          "fields": [
+            276
+          ],
+          "select": true
+        },
+        "disco_gib": 277,
+        "region": {
+          "fields": [
+            283
+          ],
+          "select": true
+        },
+        "cud": {
+          "fields": [
+            284
+          ],
+          "select": true
+        },
+        "sistema_operativo": {
+          "fields": [
+            265
+          ],
+          "select": true
+        },
+        "provisioning": {
+          "fields": [
+            267
+          ],
+          "select": true
+        },
+        "edicion": {
+          "fields": [
+            287
+          ],
+          "select": true
+        }
+      }
+    },
+    "alloydb": {
+      "_nota": "read pools por serie con toggle + vCPU TOTAL (memoria auto): N2 1334/8, C4A 1335/1336, C4 1338/1339. 'read pool 2× c4-highmem-8' → read_pool_c4:true + read_pool_c4_vcpu:16 (2×8). storage_tib alias (÷ del gib). backup_multiplo es SELECT 1/2/3/4 (múltiplo del storage), no GiB.",
+      "servicio": {
+        "fixed": 61,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            4
+          ],
+          "select": true
+        },
+        "serie_maquina": {
+          "fields": [
+            1333
+          ],
+          "select": true
+        },
+        "vcpu_primario": 5,
+        "alta_disponibilidad": 7,
+        "read_pool_n2": 1334,
+        "read_pool_n2_vcpu": 8,
+        "read_pool_c4a": 1335,
+        "read_pool_c4a_vcpu": 1336,
+        "read_pool_c4": 1338,
+        "read_pool_c4_vcpu": 1339,
+        "storage_gib": 10,
+        "storage_tib": {
+          "fields": [
+            10
+          ],
+          "unidad": 17
+        },
+        "backup_multiplo": {
+          "fields": [
+            476
+          ],
+          "select": true
+        },
+        "cud": {
+          "fields": [
+            444
+          ],
+          "select": true
+        }
+      }
+    },
+    "memorystore": {
+      "_nota": "4 servicios; el gem elige con 'variante' (canónicas: redis | cluster | memcached | valkey; sin 'variante' → redis, compat). Redis (38): tier basic/standard + capacidad_gib. Cluster (39)/Valkey (109): node_type + shards + replicas_por_shard (node-time 730h). Memcached (40): instancias × nodos_por_instancia × vcpu/memoria por nodo. Antes solo cotizaba Redis → pedir Cluster/Memcached/Valkey daba número equivocado sin avisar.",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "redis": 38,
+          "cluster": 39,
+          "memcached": 40,
+          "valkey": 109
+        },
+        "default": 38,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "redis": {
+          "region": {
+            "fields": [
+              535
+            ],
+            "select": true
+          },
+          "tier": {
+            "fields": [
+              531
+            ],
+            "select": true
+          },
+          "capacidad_gib": 532,
+          "replicas": 533,
+          "horas_mes": 534,
+          "cud": {
+            "fields": [
+              536
+            ],
+            "select": true
+          }
+        },
+        "cluster": {
+          "region": {
+            "fields": [
+              549
+            ],
+            "select": true
+          },
+          "node_type": {
+            "fields": [
+              702
+            ],
+            "select": true
+          },
+          "shards": 546,
+          "replicas_por_shard": {
+            "fields": [
+              547
+            ],
+            "select": true
+          },
+          "horas_mes": 548
+        },
+        "memcached": {
+          "region": {
+            "fields": [
+              574
+            ],
+            "select": true
+          },
+          "instancias": 576,
+          "nodos_por_instancia": 577,
+          "vcpu_por_nodo": 571,
+          "memoria_por_nodo_gib": {
+            "fields": [
+              572
+            ],
+            "unidad": 16
+          },
+          "horas_mes": 573
+        },
+        "valkey": {
+          "region": {
+            "fields": [
+              1165
+            ],
+            "select": true
+          },
+          "node_type": {
+            "fields": [
+              1161
+            ],
+            "select": true
+          },
+          "shards": 1162,
+          "replicas_por_shard": {
+            "fields": [
+              1163
+            ],
+            "select": true
+          },
+          "horas_mes": 1164
+        }
+      }
+    },
+    "cloud_vpn": {
+      "campos": {
+        "region": {
+          "fields": [
+            560
+          ],
+          "select": true
+        },
+        "tuneles": 561
+      }
+    },
+    "cloud_interconnect": {
+      "_nota": "NO hay select de ancho de banda para Partner: hay un CONTADOR por tier (586=50Mbps … 597=50Gbps). '2 VLAN de 1 Gbps' → vlan_1gbps:2, NO 40×50Mbps. Dedicated usa fieldIds DISTINTOS (601-608): circuitos por puerto (10G/100G) + VLAN en 3 bandas anchas + datos. Nunca compartir 'campos' entre variantes — svc42 ignora silenciosamente los fieldIds de svc41 (Δtotal=0, verificado en vivo 2026-07-22; era un subcobro mudo real).",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "partner": 41,
+          "dedicated": 42
+        },
+        "default": 41,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "partner": {
+          "vlan_50mbps": 586,
+          "vlan_100mbps": 587,
+          "vlan_200mbps": 588,
+          "vlan_300mbps": 589,
+          "vlan_400mbps": 590,
+          "vlan_500mbps": 591,
+          "vlan_1gbps": 592,
+          "vlan_2gbps": 593,
+          "vlan_5gbps": 594,
+          "vlan_10gbps": 595,
+          "vlan_20gbps": 596,
+          "vlan_50gbps": 597,
+          "datos_tib": 598,
+          "ubicacion": {
+            "fields": [
+              599,
+              600
+            ],
+            "select": true
+          }
+        },
+        "dedicated": {
+          "circuitos_10g": 601,
+          "circuitos_100g": 602,
+          "vlan_dedicated_hasta_10gbps": 603,
+          "vlan_dedicated_hasta_20gbps": 604,
+          "vlan_dedicated_hasta_50gbps": 605,
+          "datos_tib": 606,
+          "ubicacion": {
+            "fields": [
+              607,
+              608
+            ],
+            "select": true
+          }
+        }
+      }
+    },
+    "networking": {
+      "_nota": "camposPorVariante OBLIGATORIO: los fieldIds de IP Address (255-258) NO existen en NAT (46) ni CLB (48). NAT/LB mapeados 2026-07-22: 563/568/569/570 son legítimamente null por defecto (563=gemelo global de 565 cuando alcance=global; 568-570 cotizan el proxy de Internal Application LB, independiente del selector 562) — no es bug de unidad faltante.",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "ip_address": 22,
+          "data_transfer": 36,
+          "nat": 46,
+          "load_balancing": 48
+        },
+        "default": 22,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "ip_address": {
+          "region": {
+            "fields": [
+              255
+            ],
+            "select": true
+          },
+          "ips_sin_uso": 256,
+          "ips_en_uso": 257,
+          "ips_en_uso_spot": 258
+        },
+        "data_transfer": {
+          "tier_red": {
+            "fields": [
+              421
+            ],
+            "select": true
+          },
+          "datos_tib": 422,
+          "region_origen": {
+            "fields": [
+              423
+            ],
+            "select": true
+          },
+          "region_destino": {
+            "fields": [
+              424
+            ],
+            "select": true
+          }
+        },
+        "nat": {
+          "tipo_nat": {
+            "fields": [
+              664
+            ],
+            "select": true
+          },
+          "vms_asignadas": 661,
+          "datos_procesados_gib": 662,
+          "ips_usadas": 663
+        },
+        "load_balancing": {
+          "alcance": {
+            "fields": [
+              562
+            ],
+            "select": true
+          },
+          "region": {
+            "fields": [
+              564
+            ],
+            "select": true
+          },
+          "reglas_reenvio": 565,
+          "reglas_reenvio_global": 563,
+          "datos_entrada_gib": 566,
+          "datos_salida_gib": 567,
+          "proxy_region": {
+            "fields": [
+              568
+            ],
+            "select": true
+          },
+          "proxy_instancias": 569,
+          "proxy_datos_gib": 570
+        }
+      }
+    },
+    "cloud_storage": {
+      "defaults": {
+        "1172": null
+      },
+      "campos": {
+        "tipo_ubicacion": {
+          "fields": [
+            173
+          ],
+          "select": true
+        },
+        "region": {
+          "fields": [
+            146
+          ],
+          "select": true
+        },
+        "clase": {
+          "fields": [
+            147
+          ],
+          "select": true
+        },
+        "storage_gib": 148,
+        "storage_tib": {
+          "fields": [
+            148
+          ],
+          "unidad": 17
+        },
+        "ops_clase_a_millones": 150,
+        "ops_clase_b_millones": 151,
+        "transfer_interno_gib": 153,
+        "transfer_interno_tib": {
+          "fields": [
+            153
+          ],
+          "unidad": 17
+        },
+        "region_origen_transfer": {
+          "fields": [
+            154
+          ],
+          "select": true
+        },
+        "region_destino_transfer": {
+          "fields": [
+            155
+          ],
+          "select": true
+        }
+      }
+    },
+    "artifact_registry": {
+      "campos": {
+        "storage_gib": 872,
+        "transfer_gb": 873,
+        "transfer_origen_destino": {
+          "fields": [
+            874
+          ],
+          "select": true
+        }
+      }
+    },
+    "cloud_armor": {
+      "campos": {
+        "recursos_protegidos": 621,
+        "inspeccion_clb_gib": 622,
+        "inspeccion_nlb_gib": 624,
+        "tier": {
+          "fields": [
+            626
+          ],
+          "select": true
+        },
+        "requests_global_millones": 617,
+        "requests_regional_millones": 618,
+        "policies": 619,
+        "rules": 620
+      }
+    },
+    "secret_manager": {
+      "campos": {
+        "versiones_activas": 869,
+        "ops_acceso": 870,
+        "notificaciones_rotacion": 871
+      }
+    },
+    "cloud_kms": {
+      "_nota": "1519 (nivel de protección) es COSMÉTICO: no gatea qué fieldIds cotiza el RPC (verificado en vivo, sin cascada). Cada tarifa (software/HSM/external) tiene su propio fieldId independiente; el gem simplemente rellena el grupo que corresponda.",
+      "servicio": {
+        "fixed": 82,
+        "soloServicio": true
+      },
+      "campos": {
+        "nivel_proteccion": {
+          "fields": [
+            1519
+          ],
+          "select": true
+        },
+        "versiones_aes256": 1493,
+        "versiones_hmac": 1492,
+        "versiones_rsa_ec": 1494,
+        "ops_aes256": 1504,
+        "ops_hmac": 1505,
+        "ops_rsa_ec": 1506,
+        "versiones_hmac_hsm": 1495,
+        "versiones_aes256_hsm": 1496,
+        "versiones_rsa2048_hsm": 1497,
+        "versiones_rsa3072_hsm": 1498,
+        "versiones_rsa4096_hsm": 1499,
+        "versiones_ecp256_hsm": 1500,
+        "versiones_ecp384_hsm": 1501,
+        "ops_aes256_hsm": 1512,
+        "ops_hmac_hsm": 1513,
+        "ops_rsa2048_hsm": 1507,
+        "ops_rsa3072_hsm": 1508,
+        "ops_rsa4096_hsm": 1509,
+        "ops_ecp256_hsm": 1510,
+        "ops_pkcs1_hsm": 1511,
+        "ops_auto_key_hsm": 1514,
+        "versiones_simetricas_external": 1502,
+        "versiones_asimetricas_external": 1503,
+        "ops_simetricas_external": 1515,
+        "ops_asimetricas_external": 1516,
+        "fee_hsm_single_tenant": 1517,
+        "fee_cse_key_service": 1518
+      }
+    },
+    "cloud_dns": {
+      "campos": {
+        "consultas_millones": 666,
+        "consultas_routing_millones": 667,
+        "zonas": 670
+      }
+    },
+    "cloud_logging": {
+      "campos": {
+        "storage_gib": 445,
+        "retencion_meses": 446
+      }
+    },
+    "cloud_monitoring": {
+      "_nota": "producto 46 (Cloud Operations) agrupa Logging/Monitoring/Prometheus/Trace; Logging es el clave aparte `cloud_logging`. El gem elige con 'variante' (monitoring | prometheus | trace; sin ella → monitoring, compat). Antes fixed:79 → pedir Prometheus/Trace cotizaba Monitoring sin avisar. Prometheus: poner conoce_samples:true para inputar samples_por_segundo. Trace: spans/uptime tienen free tier (2.5M spans, luego $0.20/M).",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "monitoring": 79,
+          "prometheus": 80,
+          "trace": 81
+        },
+        "default": 79,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "monitoring": {
+          "conoce_volumen_mib": 756,
+          "volumen_mib": 743,
+          "num_metricas": 744,
+          "datapoints_por_hora": 745,
+          "num_recursos": 746
+        },
+        "prometheus": {
+          "conoce_samples": 757,
+          "samples_por_segundo": 747,
+          "series_unicas": 748,
+          "intervalo_muestreo": {
+            "fields": [
+              749
+            ],
+            "select": true
+          }
+        },
+        "trace": {
+          "trace_spans": 752,
+          "uptime_checks": 753,
+          "nro_regiones": 754,
+          "frecuencia": {
+            "fields": [
+              755
+            ],
+            "select": true
+          }
+        }
+      }
+    },
+    "cloud_build": {
+      "servicio": {
+        "fixed": 90,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            895
+          ],
+          "select": true
+        },
+        "tipo_pool": {
+          "fields": [
+            896
+          ],
+          "select": true
+        },
+        "tipo_maquina": {
+          "fields": [
+            897
+          ],
+          "select": true
+        },
+        "build_minutos": 901,
+        "disco_gib": 902
+      }
+    },
+    "cloud_sql": {
+      "_nota": "fieldIds dependen del motor (esquema 7: MySQL svc6 / PostgreSQL svc7 / SQL Server svc8). tipo_maquina va al campo t9 (encodeCloudSqlT9 deriva vCPU/memoria del slug db-standard/highmem/custom); instancias al t10 (escala horas ×730).",
+      "servicio": {
+        "param": "motor",
+        "opciones": {
+          "mysql": 6,
+          "postgres": 7,
+          "sqlserver": 8
+        },
+        "default": 6,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "mysql": {
+          "region": {
+            "fields": [
+              72
+            ],
+            "select": true
+          },
+          "edicion": {
+            "fields": [
+              126
+            ],
+            "select": true
+          },
+          "tipo_maquina": 68,
+          "instancias": 66,
+          "alta_disponibilidad": 71,
+          "storage_gib": 73,
+          "storage_type": {
+            "fields": [
+              177
+            ],
+            "select": true
+          },
+          "backup_gib": 74,
+          "cud": {
+            "fields": [
+              75
+            ],
+            "select": true
+          }
+        },
+        "postgres": {
+          "region": {
+            "fields": [
+              81
+            ],
+            "select": true
+          },
+          "edicion": {
+            "fields": [
+              143
+            ],
+            "select": true
+          },
+          "tipo_maquina": 79,
+          "instancias": 77,
+          "alta_disponibilidad": 80,
+          "storage_gib": 82,
+          "storage_type": {
+            "fields": [
+              178
+            ],
+            "select": true
+          },
+          "backup_gib": 83,
+          "cud": {
+            "fields": [
+              84
+            ],
+            "select": true
+          }
+        },
+        "sqlserver": {
+          "region": {
+            "fields": [
+              91
+            ],
+            "select": true
+          },
+          "edicion": {
+            "fields": [
+              903
+            ],
+            "select": true
+          },
+          "tipo_maquina": 89,
+          "instancias": 86,
+          "alta_disponibilidad": 90,
+          "storage_gib": 92,
+          "storage_type": {
+            "fields": [
+              179
+            ],
+            "select": true
+          },
+          "backup_gib": 93,
+          "cud": {
+            "fields": [
+              94
+            ],
+            "select": true
+          }
+        }
+      }
+    },
+    "persistent_disk": {
+      "_nota": "DOS servicios con campos distintos: Hyperdisk (svc 93: capacidad de disco vía nro_discos+gib_por_disco; anula costos fantasma 1539-1551) y Persistent Disk (svc 43: SNAPSHOTS 167 regional / 168 multi-regional). El gem elige con la spec 'tipo' (hyperdisk|snapshot). Para snapshots SIEMPRE tipo:'snapshot'.",
+      "servicio": {
+        "param": "tipo",
+        "opciones": {
+          "hyperdisk": 93,
+          "snapshot": 43,
+          "persistent": 43
+        },
+        "default": 93,
+        "soloServicio": true
+      },
+      "defaultsPorVariante": {
+        "hyperdisk": {
+          "1539": 0,
+          "1540": 0,
+          "1541": 0,
+          "1549": 0,
+          "1550": 0,
+          "1551": 0
+        }
+      },
+      "camposPorVariante": {
+        "hyperdisk": {
+          "region": {
+            "fields": [
+              924
+            ],
+            "select": true
+          },
+          "nro_discos": 914,
+          "gib_por_disco": 915,
+          "iops_provisionadas": 916,
+          "throughput_mbps": 917,
+          "nro_discos_throughput": 918,
+          "gib_por_disco_throughput": 919,
+          "throughput_mbps_throughput": 920,
+          "nro_discos_extreme": 921,
+          "gib_por_disco_extreme": 922,
+          "iops_extreme": 923,
+          "nro_discos_ml": 1539,
+          "gib_por_disco_ml": 1540,
+          "throughput_mbps_ml": 1541,
+          "nro_discos_ha": 1542,
+          "gib_por_disco_ha": 1543,
+          "iops_ha": 1544,
+          "throughput_mbps_ha": 1545
+        },
+        "snapshot": {
+          "region": {
+            "fields": [
+              172
+            ],
+            "select": true
+          },
+          "snapshot_storage_gib": 167,
+          "snapshot_multiregional_gib": 168
+        },
+        "persistent": {
+          "region": {
+            "fields": [
+              172
+            ],
+            "select": true
+          },
+          "snapshot_storage_gib": 167,
+          "snapshot_multiregional_gib": 168
+        }
+      }
+    },
+    "backup_dr": {
+      "_nota": "Backup and DR. GCE (svc 96), Appliances (svc 98), Disk (svc 118), Cloud SQL (svc 122), File Systems (svc 100), Databases (svc 102) y VMware (svc 97) mapeados 2026-07-23 — ninguno requirió captura MCP, el diagnóstico previo de bloqueo (unidad/quirk/campos sin identificar) era falso positivo. El gem elige con 'tipo' (gce|appliances|disco|cloudsql|filesystems|databases|vmware). GCE/Disk/CloudSQL: volumetría (total_data_gib) + tasa de cambio + retenciones + tipo_almacenamiento (backup-vault DEFAULT | standard-snapshot | archive-snapshot; ALTERNARLOS CAMBIA MUCHO EL PRECIO). La región del backup depende del tipo: backup-vault → region_vault (961); standard/archive snapshot → region_snapshot (937). Appliances: appliance_type (machine type y storage van BLOQUEADOS por tipo) + nro_appliances + region. FileSystems/Databases: mismo motor de backup + snapshot local en disco (tipo_disco_local/ubicacion_disco_local) ADEMÁS del backup en Cloud Storage; Databases requiere motor_bd (select, cambia tarifa base: tier caro sap-hana/sap-ase/sap-maxdb/oracle/ibm-db2 vs tier barato sql-server/mysql/postgresql/maria-db) y tiene retencion_logs_dias_local/retencion_logs_cloud propios. VMware: el costo DOMINANTE es nro_nodos×región×familia_nodo×compromiso (motor de nodos GCVE, independiente del backup de datos total_data_gib/cambio_diario_pct).",
+      "servicio": {
+        "param": "tipo",
+        "opciones": {
+          "gce": 96,
+          "appliances": 98,
+          "disco": 118,
+          "cloudsql": 122,
+          "filesystems": 100,
+          "databases": 102,
+          "vmware": 97
+        },
+        "default": 96,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "gce": {
+          "total_data_gib": 929,
+          "cambio_diario_pct": 930,
+          "retencion_dias": 931,
+          "retencion_semanas": 932,
+          "retencion_meses": 933,
+          "retencion_anios": 934,
+          "tipo_almacenamiento": {
+            "fields": [
+              935
+            ],
+            "select": true
+          },
+          "ubicacion_tipo": {
+            "fields": [
+              936
+            ],
+            "select": true
+          },
+          "region_vault": {
+            "fields": [
+              961
+            ],
+            "select": true
+          },
+          "region_snapshot": {
+            "fields": [
+              937
+            ],
+            "select": true
+          }
+        },
+        "appliances": {
+          "region": {
+            "fields": [
+              964
+            ],
+            "select": true
+          },
+          "appliance_type": {
+            "fields": [
+              965
+            ],
+            "select": true
+          },
+          "nro_appliances": 969
+        },
+        "disco": {
+          "total_data_gib": 1367,
+          "cambio_diario_pct": 1368,
+          "retencion_dias": 1369,
+          "retencion_semanas": 1370,
+          "retencion_meses": 1371,
+          "retencion_anios": 1372,
+          "tipo_almacenamiento": {
+            "fields": [
+              1373
+            ],
+            "select": true
+          },
+          "ubicacion_tipo": {
+            "fields": [
+              1374
+            ],
+            "select": true
+          },
+          "region_snapshot": {
+            "fields": [
+              1375
+            ],
+            "select": true
+          },
+          "region_vault": {
+            "fields": [
+              1376
+            ],
+            "select": true
+          }
+        },
+        "cloudsql": {
+          "total_data_gib": 1434,
+          "cambio_diario_pct": 1435,
+          "retencion_dias": 1436,
+          "retencion_semanas": 1437,
+          "retencion_meses": 1438,
+          "retencion_anios": 1439,
+          "tipo_almacenamiento": {
+            "fields": [
+              1440
+            ],
+            "select": true
+          },
+          "ubicacion_tipo": {
+            "fields": [
+              1441
+            ],
+            "select": true
+          },
+          "region_snapshot": {
+            "fields": [
+              1442
+            ],
+            "select": true
+          },
+          "region_vault": {
+            "fields": [
+              1443
+            ],
+            "select": true
+          }
+        },
+        "filesystems": {
+          "total_data_gib": 978,
+          "cambio_diario_pct": 979,
+          "retencion_dias_local": 980,
+          "tipo_disco_local": {
+            "fields": [
+              981
+            ],
+            "select": true
+          },
+          "ubicacion_disco_local": {
+            "fields": [
+              982
+            ],
+            "select": true
+          },
+          "retencion_dias": 983,
+          "retencion_semanas": 984,
+          "retencion_meses": 985,
+          "retencion_anios": 986,
+          "tipo_almacenamiento": {
+            "fields": [
+              987
+            ],
+            "select": true
+          },
+          "ubicacion_tipo": {
+            "fields": [
+              988
+            ],
+            "select": true
+          },
+          "region_snapshot": {
+            "fields": [
+              989
+            ],
+            "select": true
+          },
+          "nro_montajes_virtuales": 990,
+          "tamano_filesystems_gib": 991,
+          "horas_montaje_mes": 992
+        },
+        "databases": {
+          "motor_bd": {
+            "fields": [
+              1005
+            ],
+            "select": true
+          },
+          "total_data_gib": 1006,
+          "cambio_diario_pct": 1007,
+          "retencion_dias_local": 1008,
+          "retencion_logs_dias_local": 1009,
+          "tipo_disco_local": {
+            "fields": [
+              1010
+            ],
+            "select": true
+          },
+          "ubicacion_disco_local": {
+            "fields": [
+              1011
+            ],
+            "select": true
+          },
+          "retencion_dias": 1012,
+          "retencion_semanas": 1013,
+          "retencion_meses": 1014,
+          "retencion_anios": 1015,
+          "retencion_logs_cloud": 1016,
+          "tipo_almacenamiento": {
+            "fields": [
+              1017
+            ],
+            "select": true
+          },
+          "ubicacion_tipo": {
+            "fields": [
+              1018
+            ],
+            "select": true
+          },
+          "region_snapshot": {
+            "fields": [
+              1019
+            ],
+            "select": true
+          },
+          "cross_regional": {
+            "fields": [
+              1020
+            ],
+            "select": true
+          },
+          "nro_montajes_virtuales": 1021,
+          "tamano_vm_gib": 1022,
+          "horas_montaje_mes": 1023
+        },
+        "vmware": {
+          "total_data_gib": 940,
+          "cambio_diario_pct": 941,
+          "nro_nodos": 956,
+          "region": {
+            "fields": [
+              957
+            ],
+            "select": true
+          },
+          "familia_nodo": {
+            "fields": [
+              958
+            ],
+            "select": true
+          },
+          "compromiso": {
+            "fields": [
+              959
+            ],
+            "select": true
+          }
+        }
+      },
+      "cascadas": {
+        "appliance_type": {
+          "basic-for-dbs-vmware-and-other-resources": {
+            "966": "e2-standard-16"
+          },
+          "standard-for-dbs-vmware-and-other-resources": {
+            "966": "n2-standard-16"
+          }
+        }
+      }
+    },
+    "agent_platform": {
+      "_nota": "Vertex AI Workbench (svc 45). Verificado en vivo 2026-07-22: SOLO nro_vms×disco×horas mueven el precio (escala lineal exacta en nro_vms). 'Machine type'(637, t9 anidado igual que GKE/Training) y GPU (642 toggle/643 modelo/644 conteo) NO afectan el total en esta tarjeta de RPC — probado con n1-standard-4/n1-highmem-16/a2-highgpu-1g y con GPU T4×1 activada, Δ=0 en todos los casos. No es un defecto del motor: es el comportamiento real de Google en este servicio. machine_type/GPU quedan sin mapear (no hay nada que mapear: no son drivers de costo aquí).",
+      "servicio": {
+        "fixed": 45,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            635
+          ],
+          "select": true
+        },
+        "nro_vms": 636,
+        "tipo_disco": {
+          "fields": [
+            645
+          ],
+          "select": true
+        },
+        "disco_gib": 646,
+        "horas_mes": 647
+      }
+    },
+    "gemini_code_assist": {
+      "_nota": "Tarifa plana por asiento (per-seat SaaS), NO por consumo — pero sigue siendo determinista vía RPC (asientos × tarifa), así que SÍ es mapeable. Verificado en vivo 2026-07-22: edition=standard, 1000 seats → $19000 exacto ($19/asiento/mes).",
+      "servicio": {
+        "fixed": 72,
+        "soloServicio": true
+      },
+      "campos": {
+        "edicion": {
+          "fields": [
+            962
+          ],
+          "select": true
+        },
+        "asientos": 530,
+        "compromiso": {
+          "fields": [
+            963
+          ],
+          "select": true
+        }
+      }
+    },
+    "agent_platform_agents": {
+      "_nota": "Agent Platform Agents (Vertex AI Search & Conversation). Search (svc 25): requests/mes por edición (standard/enterprise/advanced generative answers) + Data Index GiB/mes. Agent Conversation (svc 26): Dialogflow CX Chat = requests/mes + VOZ CX en segundos/mes (cx_standard_voice_seg_mes $0.001/s, cx_enterprise_voice_seg_mes $0.002/s) + Data Index GiB/mes. El gem elige con 'tipo' (search|conversation). Voz verificada en vivo 2026-07-14 (el factor ~375000× era la unidad 19 del constraint; forzada 20).",
+      "servicio": {
+        "param": "tipo",
+        "opciones": {
+          "search": 25,
+          "conversation": 26,
+          "conversacion": 26
+        },
+        "default": 25,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "search": {
+          "search_standard_req_mes": 304,
+          "search_enterprise_req_mes": 316,
+          "search_advanced_req_mes": 318,
+          "data_index_gib": {
+            "fields": [
+              320
+            ],
+            "unidad": 16
+          }
+        },
+        "conversation": {
+          "cx_standard_chat_req_mes": 305,
+          "cx_enterprise_chat_req_mes": 307,
+          "cx_standard_voice_seg_mes": {
+            "fields": [
+              309
+            ],
+            "unidad": 20
+          },
+          "cx_enterprise_voice_seg_mes": {
+            "fields": [
+              311
+            ],
+            "unidad": 20
+          },
+          "data_index_gib": 313
+        }
+      }
+    },
+    "datastream": {
+      "_nota": "Mapeado 2026-07-23. Sin franquicia en CDC (flat $2/GiB); Backfill sí tiene franquicia (500 GiB gratis, luego $0.4/GiB). El triage cero-token lo marcó 'ROTO' por falso positivo (probó el select de región solo, sin ningún campo numérico ≠0).",
+      "servicio": {
+        "fixed": 115,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            1354
+          ],
+          "select": true
+        },
+        "cdc_volumen_gib_mes": 1352,
+        "backfill_volumen_gib_mes": 1353
+      }
+    },
+    "text_to_speech": {
+      "_nota": "Mapeado 2026-07-23. 'tipo_voz' cambia franquicia Y tarifa (standard: franquicia 4M caracteres, $4/millón; neural/wavenet: franquicia 1M, $16/millón).",
+      "servicio": {
+        "fixed": 77,
+        "soloServicio": true
+      },
+      "campos": {
+        "tipo_voz": {
+          "fields": [
+            364
+          ],
+          "select": true
+        },
+        "caracteres_millones_mes": 365
+      }
+    },
+    "cloud_vision": {
+      "_nota": "Mapeado 2026-07-23. 12 features, cada una es un campo tipo7 independiente con SU PROPIA tarifa por 1000 imágenes (franquicia compartida de 1000 img/mes cada una): label_detection/text_detection/safe_search/facial_detection/landmark_detection/logo_detection/image_properties/document_text_detection/crop_hints = $1.50/1000 img; object_localization = $2.25/1000; web_detection = $3.50/1000 (sin tramo2, tarifa fija); facial_celebrity = $1.50/1000. Tarifas de tramo2 (>5000 unidades) solo confirmadas para label/text/object (bajan a $1.00/$0.60/$1.50); el resto usa la tarifa tramo1 también arriba de 5000 unidades (no verificado, aceptable para v1: la mayoría de usos cae en tramo1).",
+      "servicio": {
+        "fixed": 70,
+        "soloServicio": true
+      },
+      "campos": {
+        "label_detection_miles_img": 15,
+        "text_detection_miles_img": 16,
+        "safe_search_miles_img": 17,
+        "facial_detection_miles_img": 18,
+        "facial_celebrity_miles_img": 19,
+        "landmark_detection_miles_img": 20,
+        "logo_detection_miles_img": 21,
+        "image_properties_miles_img": 22,
+        "web_detection_miles_img": 23,
+        "document_text_detection_miles_img": 24,
+        "crop_hints_miles_img": 25,
+        "object_localization_miles_img": 26
+      }
+    },
+    "firebase_app_hosting": {
+      "_nota": "Mapeado 2026-07-23. Es un BUNDLE: Cloud Run (motor de la app) + Cloud Build + Artifact Registry + Cloud Logging + Secret Manager, todos en un solo servicio (111). 'tipo_asignacion_cpu'=cpuAlwaysAllocated activa el cobro por instancia_horas_mes (igual que el gotcha de GPU en Cloud Run: en el modo default 'cpuAllocatedDuringProcessing' el costo depende de requests×tiempo_ejecucion, no de instancia_horas_mes, que queda mudo). Campo 1198 ('Adjust your configuration') es un toggle de UI, no viaja al motor de precio — no se mapea.",
+      "servicio": {
+        "fixed": 111,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            1174
+          ],
+          "select": true
+        },
+        "requests_miles_mes": 1175,
+        "cpu_por_instancia": 1176,
+        "memoria_gib_por_instancia": 1177,
+        "tipo_asignacion_cpu": {
+          "fields": [
+            1178
+          ],
+          "select": true
+        },
+        "tiempo_ejecucion_ms": 1179,
+        "concurrencia_por_instancia": 1196,
+        "nro_recursos": 1291,
+        "instancia_horas_mes": 1292,
+        "bandwidth_sin_cache_gib": 1180,
+        "bandwidth_con_cache_gib": 1181,
+        "build_pool_tipo": {
+          "fields": [
+            1184
+          ],
+          "select": true
+        },
+        "build_machine_tipo": {
+          "fields": [
+            1185
+          ],
+          "select": true
+        },
+        "build_minutos_mes": 1186,
+        "artifact_storage_gib": 1190,
+        "logging_retencion_meses": 1182,
+        "logging_storage_gib": 1183,
+        "secret_versiones_activas": 1187,
+        "secret_operaciones_acceso": 1188,
+        "secret_rotaciones": 1189
+      }
+    },
+    "application_integration": {
+      "_nota": "Mapeado 2026-07-23. 5 campos independientes, cada uno con su propia franquicia/tarifa (nodos_conexion_terceros sin franquicia, el resto sí). El triage cero-token lo marcó 'ROTO' por baseline=0 (default de consumo, no un error real — los 5 campos son PRICEABLE sin quirks).",
+      "servicio": {
+        "fixed": 85,
+        "soloServicio": true
+      },
+      "campos": {
+        "ejecuciones_mes": 789,
+        "data_integraciones_gib_mes": 790,
+        "nodos_conexion_google": 791,
+        "nodos_conexion_terceros": 792,
+        "data_nodos_conexion_gib_mes": 793
+      }
+    },
+    "support_services": {
+      "_nota": "Mapeado 2026-07-23. El default del esquema para 'tam_level'(882) es un valor copiado inválido → [13] con o sin overrides; PRODUCT_QUIRKS[53] lo omite (verificado contra el navegador real: sin TAM la UI tampoco lo envía). Sin TAM, 'nro_tams' queda mudo (correcto). Con TAM (tam_level=dedicated-tam/multi-tam), nro_tams escala $50000/TAM.",
+      "servicio": {
+        "fixed": 87
+      },
+      "campos": {
+        "service_level": {
+          "fields": [
+            878
+          ],
+          "select": true
+        },
+        "gcp_spend": 880,
+        "workspace_spend": 881,
+        "tam_level": {
+          "fields": [
+            882
+          ],
+          "select": true
+        },
+        "nro_tams": 883
+      }
+    },
+    "generative_ai": {
+      "descontinuados": {
+        "codey-generation": "Para generacion de codigo usa un modelo Gemini (gemini-2.5-flash o gemini-2.5-pro).",
+        "codey-chat": "Para chat de codigo usa un modelo Gemini (gemini-2.5-flash o gemini-2.5-pro).",
+        "codey-completion": "Para autocompletado de codigo usa un modelo Gemini (gemini-2.5-flash o gemini-2.5-pro)."
+      },
+      "_nota_descontinuados": "Los tres Codey son el servicio 29 ('Code Models'), que la calculadora dejo de soportar: la tarjeta abre con el mensaje 'This service is no longer supported in the pricing calculator' y el importe en '--', mientras el RPC los sigue tarifando ($91.25 en el caso reg-genai-media-legacy). El esquema NO lo marca (el descriptor del svc 29 es identico al del 28 y el 30, que siguen vivos), asi que esto solo se descubre abriendo el link: `npm run roundtrip` lo reporta como `abre-mal`. PaLM 2 y MedLM (svc 28) NO estan descontinuados: verificado que renderizan con su precio.",
+      "_nota": "Vertex AI Generative AI (id 18). Cada familia de modelos es un servicio; el MODELO se elige con 'modelo' (todas las variantes Gemini viven en svc 35, se distinguen por el set de campos). Campos por millón de tokens/caracteres, requests/día. Familia GEMINI mapeada (2026-07-12); otras familias (Imagen/Veo/Lyria/Llama/OpenAI/DeepSeek/Qwen/PaLM/Gemma/Embedding/Code/Tuning…) pendientes → si piden una no mapeada, decláralo fuera de alcance. Tokens: unidades tal cual (requests/día, tokens promedio por request). Modelos 'thinking' solo cuentan output. Lyria: 'requests_dia' son generaciones (clips ≤30s), no segundos — el sufijo '_dia' es nominal, el RPC NO multiplica por día; sin valor explícito el campo cae en $0 silencioso, por eso defaultsPorVariante fuerza 1.",
+      "servicio": {
+        "param": "modelo",
+        "opciones": {
+          "gemini-3.5-flash": 35,
+          "gemini-3.1-pro": 35,
+          "gemini-3.1-flash-lite": 35,
+          "gemini-2.5-pro": 35,
+          "gemini-2.5-flash": 35,
+          "gemini-2.5-flash-lite": 35,
+          "gemini-2.5-flash-live": 35,
+          "gemini-2.5-pro-thinking": 35,
+          "gemini-2.5-flash-thinking": 35,
+          "deepseek-v3.2": 134,
+          "deepseek-v3.1": 134,
+          "deepseek-r1": 134,
+          "deepseek-ocr": 134,
+          "glm-5": 135,
+          "glm-4.7": 135,
+          "llama-3.1-405b": 136,
+          "llama-4-maverick": 136,
+          "llama-4-scout": 136,
+          "llama-3.3-70b": 136,
+          "minimax-m2": 137,
+          "kimi-k2-thinking": 138,
+          "gpt-oss-120b": 139,
+          "gpt-oss-20b": 139,
+          "qwen3-235b": 140,
+          "qwen3-coder-480b": 140,
+          "qwen3-next-80b-instruct": 140,
+          "qwen3-next-80b-thinking": 140,
+          "gemini-1.0-pro": 28,
+          "palm2-text-unicorn": 28,
+          "palm2-text-bison": 28,
+          "palm2-chat-bison": 28,
+          "medlm-medium": 28,
+          "medlm-large": 28,
+          "gemma-4-26b": 131,
+          "gemini-3.1-flash-image": 130,
+          "embeddings-text": 30,
+          "multimodal-embeddings-text": 30,
+          "multimodal-embeddings-image": 30,
+          "codey-generation": 29,
+          "codey-chat": 29,
+          "codey-completion": 29,
+          "tuning-gemini-1.5-flash": 99,
+          "tuning-gemini-1.5-pro": 99,
+          "imagen-4-ultra": 27,
+          "imagen-4": 27,
+          "imagen-4-fast": 27,
+          "imagen-3": 27,
+          "imagen-3-fast": 27,
+          "imagen-2": 27,
+          "imagen-2-editing": 27,
+          "imagen-generation": 27,
+          "image-editing": 27,
+          "image-upscaling": 27,
+          "image-captioning": 27,
+          "image-vqa": 27,
+          "veo-3.1": 113,
+          "veo-3.1-fast": 113,
+          "veo-3": 113,
+          "veo-3-fast": 113,
+          "veo-2": 113,
+          "lyria-3": 121,
+          "lyria-2": 121
+        },
+        "default": 35,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "gemini-3.5-flash": {
+          "requests_dia": 1738,
+          "input_chars": 1741,
+          "output_chars": 1749,
+          "input_imagenes": 1743,
+          "input_video_seg": 1745,
+          "input_audio_seg": 1747,
+          "grounding_search": 1751
+        },
+        "gemini-3.1-pro": {
+          "context_window": {
+            "fields": [
+              1456
+            ],
+            "select": true
+          },
+          "requests_dia": 1458,
+          "input_tokens_texto": 1459,
+          "input_tokens_imagen": 1460,
+          "input_tokens_video": 1461,
+          "input_tokens_audio": 1462,
+          "output_tokens_texto": 1463,
+          "output_tokens_imagen": 1520,
+          "grounding_search": 1464
+        },
+        "gemini-3.1-flash-lite": {
+          "requests_dia": 1470,
+          "input_tokens_texto": 1471,
+          "input_tokens_imagen": 1472,
+          "input_tokens_video": 1473,
+          "input_tokens_audio": 1474,
+          "output_tokens_texto": 1475,
+          "grounding_search": 1476
+        },
+        "gemini-2.5-pro": {
+          "context_window": {
+            "fields": [
+              1253
+            ],
+            "select": true
+          },
+          "requests_dia": 1255,
+          "input_tokens_texto": 1256,
+          "input_tokens_imagen": 1257,
+          "input_tokens_video": 1258,
+          "input_tokens_audio": 1259,
+          "output_tokens_texto": 1260,
+          "grounding_search": 1261
+        },
+        "gemini-2.5-flash": {
+          "requests_dia": 1199,
+          "input_tokens_texto": 1200,
+          "input_tokens_imagen": 1201,
+          "input_tokens_video": 1202,
+          "input_tokens_audio": 1203,
+          "output_tokens_texto": 1204,
+          "output_tokens_imagen": 1205,
+          "grounding_search": 1237
+        },
+        "gemini-2.5-flash-lite": {
+          "requests_dia": 1208,
+          "input_tokens_texto": 1209,
+          "input_tokens_imagen": 1210,
+          "input_tokens_video": 1211,
+          "input_tokens_audio": 1212,
+          "output_tokens_texto": 1213,
+          "grounding_search": 1241
+        },
+        "gemini-2.5-flash-live": {
+          "requests_dia": 1755,
+          "input_tokens_texto": 1756,
+          "input_tokens_imagen": 1758,
+          "input_tokens_video": 1759,
+          "input_tokens_audio": 1760,
+          "output_tokens_texto": 1757,
+          "output_tokens_audio": 1761
+        },
+        "gemini-2.5-pro-thinking": {
+          "context_window": {
+            "fields": [
+              1762
+            ],
+            "select": true
+          },
+          "requests_dia": 1765,
+          "output_tokens_texto": 1766
+        },
+        "gemini-2.5-flash-thinking": {
+          "context_window": {
+            "fields": [
+              1818
+            ],
+            "select": true
+          },
+          "requests_dia": 1822,
+          "output_tokens_request": 1821
+        },
+        "deepseek-v3.2": {
+          "requests_dia": 1679,
+          "input_tokens": 1680,
+          "output_tokens": 1681,
+          "caching_tokens": 1682
+        },
+        "deepseek-v3.1": {
+          "requests_dia": 1674,
+          "input_tokens": 1676,
+          "output_tokens": 1677,
+          "caching_tokens": 1678
+        },
+        "deepseek-r1": {
+          "requests_dia": 1670,
+          "input_tokens": 1672,
+          "output_tokens": 1673
+        },
+        "deepseek-ocr": {
+          "requests_dia": 1667,
+          "input_tokens": 1668,
+          "output_tokens": 1669
+        },
+        "glm-5": {
+          "requests_dia": 1687,
+          "input_tokens": 1688,
+          "output_tokens": 1689,
+          "caching_tokens": 1690
+        },
+        "glm-4.7": {
+          "requests_dia": 1683,
+          "input_tokens": 1684,
+          "output_tokens": 1685,
+          "caching_tokens": 1686
+        },
+        "llama-3.1-405b": {
+          "requests_dia": 1703,
+          "input_tokens": 1704,
+          "output_tokens": 1705
+        },
+        "llama-4-maverick": {
+          "requests_dia": 1699,
+          "input_tokens": 1701,
+          "output_tokens": 1702
+        },
+        "llama-4-scout": {
+          "requests_dia": 1695,
+          "input_tokens": 1697,
+          "output_tokens": 1698
+        },
+        "llama-3.3-70b": {
+          "requests_dia": 1691,
+          "input_tokens": 1693,
+          "output_tokens": 1694
+        },
+        "minimax-m2": {
+          "requests_dia": 1706,
+          "input_tokens": 1707,
+          "output_tokens": 1708,
+          "caching_tokens": 1709
+        },
+        "kimi-k2-thinking": {
+          "requests_dia": 1710,
+          "input_tokens": 1711,
+          "output_tokens": 1712,
+          "caching_tokens": 1713
+        },
+        "gpt-oss-120b": {
+          "requests_dia": 1719,
+          "input_tokens": 1721,
+          "output_tokens": 1722
+        },
+        "gpt-oss-20b": {
+          "requests_dia": 1714,
+          "input_tokens": 1716,
+          "output_tokens": 1717,
+          "caching_tokens": 1718
+        },
+        "qwen3-235b": {
+          "requests_dia": 1723,
+          "input_tokens": 1725,
+          "output_tokens": 1726
+        },
+        "qwen3-coder-480b": {
+          "requests_dia": 1727,
+          "input_tokens": 1729,
+          "output_tokens": 1730,
+          "caching_tokens": 1731
+        },
+        "qwen3-next-80b-instruct": {
+          "requests_dia": 1732,
+          "input_tokens": 1733,
+          "output_tokens": 1734
+        },
+        "qwen3-next-80b-thinking": {
+          "requests_dia": 1735,
+          "input_tokens": 1736,
+          "output_tokens": 1737
+        },
+        "gemini-1.0-pro": {
+          "requests_dia": 411,
+          "input_chars": 412,
+          "output_chars": 413
+        },
+        "palm2-text-unicorn": {
+          "requests_dia": 399,
+          "input_chars": 400,
+          "output_chars": 401
+        },
+        "palm2-text-bison": {
+          "requests_dia": 335,
+          "input_chars": 336,
+          "output_chars": 337
+        },
+        "palm2-chat-bison": {
+          "requests_dia": 339,
+          "input_chars": 340,
+          "output_chars": 341
+        },
+        "medlm-medium": {
+          "requests_dia": 403,
+          "input_chars": 404,
+          "output_chars": 405
+        },
+        "medlm-large": {
+          "requests_dia": 407,
+          "input_chars": 408,
+          "output_chars": 409
+        },
+        "gemma-4-26b": {
+          "requests_dia": 1655,
+          "input_tokens": 1656,
+          "output_tokens": 1657,
+          "caching_tokens": 1658
+        },
+        "gemini-3.1-flash-image": {
+          "requests_dia": 1643,
+          "input_tokens_texto": 1645,
+          "input_tokens_imagen": 1646,
+          "output_tokens_texto": 1647,
+          "output_tokens_imagen": 1648,
+          "grounding_search": 1650
+        },
+        "embeddings-text": {
+          "requests_dia": 355,
+          "input_chars": 356
+        },
+        "multimodal-embeddings-text": {
+          "requests_dia": 358,
+          "input_chars": 359
+        },
+        "multimodal-embeddings-image": {
+          "requests_dia": 361
+        },
+        "codey-generation": {
+          "requests_dia": 343,
+          "input_chars": 344,
+          "output_chars": 345
+        },
+        "codey-chat": {
+          "requests_dia": 347,
+          "input_chars": 348,
+          "output_chars": 349
+        },
+        "codey-completion": {
+          "requests_dia": 351,
+          "input_chars": 352,
+          "output_chars": 353
+        },
+        "tuning-gemini-1.5-flash": {
+          "jobs_mes": 970,
+          "training_examples": 971,
+          "tokens_por_ejemplo": 972,
+          "epochs": 973
+        },
+        "tuning-gemini-1.5-pro": {
+          "jobs_mes": 974,
+          "training_examples": 975,
+          "tokens_por_ejemplo": 976,
+          "epochs": 977
+        },
+        "imagen-4-ultra": {
+          "requests_dia": 1230
+        },
+        "imagen-4": {
+          "requests_dia": 1231
+        },
+        "imagen-4-fast": {
+          "requests_dia": 1232
+        },
+        "imagen-3": {
+          "requests_dia": 1233
+        },
+        "imagen-3-fast": {
+          "requests_dia": 1234
+        },
+        "imagen-2": {
+          "requests_dia": 1235
+        },
+        "imagen-2-editing": {
+          "requests_dia": 1236
+        },
+        "imagen-generation": {
+          "requests_dia": 322,
+          "imagenes_por_request": 323
+        },
+        "image-editing": {
+          "requests_dia": 325,
+          "imagenes_por_request": 326
+        },
+        "image-upscaling": {
+          "requests_dia": 328,
+          "imagenes_por_request": 329
+        },
+        "image-captioning": {
+          "requests_dia": 331
+        },
+        "image-vqa": {
+          "requests_dia": 333
+        },
+        "veo-3.1": {
+          "resolucion_video": {
+            "fields": [
+              1444
+            ],
+            "select": true
+          },
+          "video_audio_seg_dia": 1407,
+          "video_seg_dia": 1408
+        },
+        "veo-3.1-fast": {
+          "resolucion_video": {
+            "fields": [
+              1445
+            ],
+            "select": true
+          },
+          "video_audio_seg_dia": 1409,
+          "video_seg_dia": 1410
+        },
+        "veo-3": {
+          "resolucion_video": {
+            "fields": [
+              1446
+            ],
+            "select": true
+          },
+          "video_audio_seg_dia": 1293,
+          "video_seg_dia": 1294
+        },
+        "veo-3-fast": {
+          "resolucion_video": {
+            "fields": [
+              1447
+            ],
+            "select": true
+          },
+          "video_audio_seg_dia": 1295,
+          "video_seg_dia": 1296
+        },
+        "veo-2": {
+          "video_seg_dia": 1297,
+          "advanced_controls_seg_dia": 1298
+        },
+        "lyria-3": {
+          "requests_dia": 1433,
+          "output_audio": 1430,
+          "output_clip_audio": 1431
+        },
+        "lyria-2": {
+          "requests_dia": 1432,
+          "music_generation": 1429
+        }
+      },
+      "defaultsPorVariante": {
+        "lyria-3": {
+          "1433": 1
+        },
+        "lyria-2": {
+          "1432": 1
+        }
+      }
+    },
+    "training": {
+      "_nota": "Vertex AI Training (id 26, svc 59, único). tipo_maquina (449) es type-9 anidado idéntico al node pool de GKE → lo resuelve el dispatch genérico de defaultItem.ts (encodeGkeNodeT9), sin encoder propio. Verificado en vivo 2026-07-15: n1-standard-4, no-accelerator, 1 nodo, 30 jobs/mes × 1h = 30 node-horas → $6.5549655 (≈$0.2185/h, tarifa N1 publicada). Acelerador GPU/TPU (447/448/456/585) mapeado 2026-07-22: sin cascada oculta (a diferencia de cloud_run), escala lineal por nro_nodos. Combos acelerador×región inválidos los rechaza el propio RPC con [3] limpio (fail-loud nativo) — no se hardcodea una tabla de compatibilidad por costo/beneficio.",
+      "servicio": {
+        "fixed": 59,
+        "soloServicio": true
+      },
+      "defaults": {
+        "447": "no-accelerator"
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            455
+          ],
+          "select": true
+        },
+        "tipo_maquina": 449,
+        "nro_nodos": 456,
+        "nro_jobs_mes": 458,
+        "horas_por_job": 459,
+        "acelerador_tipo": {
+          "fields": [
+            447
+          ],
+          "select": true
+        },
+        "acelerador_modelo": {
+          "fields": [
+            448
+          ],
+          "select": true
+        },
+        "acelerador_nro_cores_tpu": 585
+      }
+    },
+    "prediction": {
+      "_nota": "Vertex AI Prediction (id 27, svc 58, único). tipo_maquina (463) type-9 anidado, mismo encoder genérico (encodeGkeNodeT9) que GKE/Training. tipo_prediccion (475) select online/batch, default 'online'. Verificado en vivo 2026-07-15: n1-standard-4, no-accelerator, 1 modelo, 1 nodo, 730 h/mes, online → $159.87 (≈$0.219/h, tarifa N1 publicada). Acelerador GPU/TPU mapeado 2026-07-22: a diferencia de training, el GPU es MUDO ($0) salvo que 'acelerador_nro_por_nodo'(473) se fije explícitamente (select, valores string \"1\"/\"2\"/\"4\"/... según el modelo) — sin cascada automática, el gem/skill debe emitirlo siempre que pida GPU. TPU usa 'acelerador_nro_cores_tpu'(628, también select string). Combos inválidos → [3] nativo del RPC.",
+      "servicio": {
+        "fixed": 58,
+        "soloServicio": true
+      },
+      "defaults": {
+        "461": "no-accelerator"
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            470
+          ],
+          "select": true
+        },
+        "tipo_maquina": 463,
+        "nro_modelos": 471,
+        "nro_nodos": 472,
+        "horas_mes": 474,
+        "tipo_prediccion": {
+          "fields": [
+            475
+          ],
+          "select": true
+        },
+        "acelerador_tipo": {
+          "fields": [
+            461
+          ],
+          "select": true
+        },
+        "acelerador_modelo": {
+          "fields": [
+            462
+          ],
+          "select": true
+        },
+        "acelerador_nro_por_nodo": {
+          "fields": [
+            473
+          ],
+          "select": true
+        },
+        "acelerador_nro_cores_tpu": {
+          "fields": [
+            628
+          ],
+          "select": true
+        }
+      }
+    },
+    "cloud_tpu": {
+      "_nota": "Cloud TPU (id 13, svc 69, único) a FINO 2026-07-20. version (243) select: v2-device/v3-device/v5e/v5p/v6e. region (242) select: sus opciones DEPENDEN de la versión (el esquema las anida por grupo de 243); resolverSelect las encuentra igual. nro_chips (244) es campo t10 anidado con la MISMA forma que Cloud SQL instancias/tiempo (sub 259 = Number of TPUs, sub 246 = TPU-time 730h) → reusa encodeCloudSqlT10; el precio es LINEAL en chips (1→$876, 8→$7008 para v5e on-demand). deployment (245) select on-demand|spot. Horas = 730 (mes completo) por default del esquema. Verificado en vivo 2026-07-20.",
+      "servicio": {
+        "fixed": 69,
+        "soloServicio": true
+      },
+      "campos": {
+        "version": {
+          "fields": [
+            243
+          ],
+          "select": true
+        },
+        "region": {
+          "fields": [
+            242
+          ],
+          "select": true
+        },
+        "nro_chips": 244,
+        "deployment": {
+          "fields": [
+            245
+          ],
+          "select": true
+        }
+      }
+    },
+    "bigquery": {
+      "_nota": "On-Demand (11) y Editions (12). Editions: edition=standard NO soporta commitment (1yr/3yr) — forzado a 'none' vía cascada (verificado en vivo 2026-07-22; los [3] que hicieron diferir esto en Fase1/2 eran 2 falsos positivos del triage cero-token sobre 201/205, no reglas reales del producto). ML (13) y BI Engine (14) siguen fuera de alcance.",
+      "servicio": {
+        "param": "modalidad",
+        "opciones": {
+          "ondemand": 11,
+          "editions": 12
+        },
+        "default": 11,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "ondemand": {
+          "region": {
+            "fields": [
+              189
+            ],
+            "select": true
+          },
+          "tib_consultados": 190,
+          "tib_storage": 191
+        },
+        "editions": {
+          "region": {
+            "fields": [
+              199
+            ],
+            "select": true
+          },
+          "edition": {
+            "fields": [
+              200
+            ],
+            "select": true
+          },
+          "max_slots": {
+            "fields": [
+              201
+            ],
+            "select": true
+          },
+          "max_slots_custom": {
+            "fields": [
+              224
+            ],
+            "unidad": 19
+          },
+          "baseline_slots": 202,
+          "commitment": {
+            "fields": [
+              203
+            ],
+            "select": true
+          },
+          "slot_commitments": 204,
+          "utilizacion_autoscale_pct": 205,
+          "storage_activo_tib": {
+            "fields": [
+              206
+            ],
+            "unidad": 17
+          },
+          "storage_largo_plazo_tib": {
+            "fields": [
+              207
+            ],
+            "unidad": 16
+          },
+          "storage_fisico_activo_gib": 208,
+          "storage_fisico_largo_plazo_gib": 209,
+          "streaming_inserts_gib": 210,
+          "streaming_reads_tib": {
+            "fields": [
+              211
+            ],
+            "unidad": 17
+          },
+          "storage_write_api_gib": 212
+        }
+      },
+      "cascadas": {
+        "edition": {
+          "standard": {
+            "203": "0"
+          }
+        }
+      }
+    },
+    "composer": {
+      "_nota": "sizing POR COMPONENTE (scheduler/worker/webserver/triggerer) coexiste con el perfil 'tamano' (tarifa fija). vcpu_* son SELECT en 1000 mCPU (0.5/1/2/4/8/16/28). Los numéricos explícitos por componente afinan el costo sobre la plantilla. 795 (nro web servers) es type-5 auto → no se mapea.",
+      "servicio": {
+        "fixed": 84,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            769
+          ],
+          "select": true
+        },
+        "tamano": {
+          "fields": [
+            770
+          ],
+          "select": true
+        },
+        "horas_mes": 772,
+        "nro_schedulers": 773,
+        "vcpu_scheduler": {
+          "fields": [
+            774
+          ],
+          "select": true
+        },
+        "memoria_scheduler_gib": 775,
+        "storage_scheduler_gib": 776,
+        "nro_workers": 777,
+        "vcpu_worker": {
+          "fields": [
+            778
+          ],
+          "select": true
+        },
+        "memoria_worker_gib": 779,
+        "storage_worker_gib": 780,
+        "vcpu_webserver": {
+          "fields": [
+            781
+          ],
+          "select": true
+        },
+        "memoria_webserver_gib": 782,
+        "storage_webserver_gib": 783,
+        "nro_triggerers": 784,
+        "vcpu_triggerer": {
+          "fields": [
+            785
+          ],
+          "select": true
+        },
+        "memoria_triggerer_gib": 786,
+        "storage_triggerer_gib": 787,
+        "db_storage_gib": 788
+      }
+    },
+    "cloud_spanner": {
+      "_nota": "539 elige nodes vs processingunits. Para 'N processing units': unidad_computo:'processingunits' + processing_units:N y NO nro_nodos. 925=Edition (standard/enterprise/enterpriseplus). El quirk 541:null (PRODUCT_QUIRKS[34]) se pisa al mapear processing_units. backup_gib en GiB.",
+      "servicio": {
+        "fixed": 57,
+        "soloServicio": true
+      },
+      "campos": {
+        "edicion": {
+          "fields": [
+            925
+          ],
+          "select": true
+        },
+        "configuracion": {
+          "fields": [
+            537
+          ],
+          "select": true
+        },
+        "location": {
+          "fields": [
+            538
+          ],
+          "select": true
+        },
+        "unidad_computo": {
+          "fields": [
+            539
+          ],
+          "select": true
+        },
+        "nro_nodos": 540,
+        "processing_units": 541,
+        "ssd_storage_gib": 542,
+        "backup_gib": 543,
+        "cud": {
+          "fields": [
+            544
+          ],
+          "select": true
+        }
+      }
+    },
+    "firestore": {
+      "_nota": "fields 395/396/397 son 'per DAY'. Claves _mes dividen ÷30.4 y redondean (marca porMes); claves _dia van directas. 398 'Total Stored Data' es cantidad promedio (passthrough, no ×periodo). El bug ×30 venía de mapear cifras mensuales a campos diarios sin conversión.",
+      "servicio": {
+        "fixed": 74,
+        "soloServicio": true
+      },
+      "campos": {
+        "tipo_ubicacion": {
+          "fields": [
+            393
+          ],
+          "select": true
+        },
+        "region": {
+          "fields": [
+            394
+          ],
+          "select": true
+        },
+        "lecturas_mes": {
+          "fields": [
+            395
+          ],
+          "porMes": true
+        },
+        "escrituras_mes": {
+          "fields": [
+            396
+          ],
+          "porMes": true
+        },
+        "deletes_mes": {
+          "fields": [
+            397
+          ],
+          "porMes": true
+        },
+        "lecturas_dia": 395,
+        "escrituras_dia": 396,
+        "deletes_dia": 397,
+        "storage_gib": 398
+      }
+    },
+    "cloud_bigtable": {
+      "_nota": "nro_nodos (521) es el DRIVER DOMINANTE del costo y es campo t10 anidado (sub 514 = Number of Nodes, sub 515 = Node-time 730h) con la MISMA forma que Cloud SQL instancias/TPU chips → reusa encodeCloudSqlT10 (el costo lo multiplica el node-time, no el conteo). Sin mapearlo, el default es 1 nodo → subcobro mudo en clústers reales. storage/backup default en GiB. Verificado en vivo 2026-07-21: escala lineal en nodos.",
+      "servicio": {
+        "fixed": 64,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            516
+          ],
+          "select": true
+        },
+        "nro_nodos": 521,
+        "tipo_storage": {
+          "fields": [
+            517
+          ],
+          "select": true
+        },
+        "storage_tib": 518,
+        "storage_gib": {
+          "fields": [
+            518
+          ],
+          "unidad": 16
+        },
+        "backup_tib": 519,
+        "backup_gib": {
+          "fields": [
+            519
+          ],
+          "unidad": 16
+        }
+      }
+    },
+    "cloud_cdn": {
+      "servicio": {
+        "fixed": 37,
+        "soloServicio": true
+      },
+      "campos": {
+        "cache_transfer_gib": 502,
+        "cache_lookup_millones": 510,
+        "egress_asia_pacifico_gib": 495,
+        "egress_china_gib": 496,
+        "egress_europa_gib": 497,
+        "egress_norteamerica_gib": 498,
+        "egress_oceania_gib": 499,
+        "egress_sudamerica_gib": 500,
+        "egress_otros_destinos_gib": 501,
+        "cache_fill_regional_gib": 508,
+        "cache_fill_interregion_gib": 509
+      }
+    },
+    "cloud_pubsub": {
+      "_nota": "OJO fieldIds: 378=datos publicados DIARIOS, 380=Topic retention days, 381=Number of subscriptions, 384=snapshots/mes. El mapa estaba CRUZADO (subs→380=retención, snapshots→381=subs) — corregido y verificado en esquema.",
+      "servicio": {
+        "fixed": 31,
+        "soloServicio": true
+      },
+      "campos": {
+        "datos_publicados_gib": 378,
+        "tipo_entrega": {
+          "fields": [
+            379
+          ],
+          "select": true
+        },
+        "topic_retention_dias": 380,
+        "nro_suscripciones": 381,
+        "nro_snapshots": 384
+      }
+    },
+    "cloud_dataflow": {
+      "_nota": "worker_machine_type (708) es compuesto type-9 con la MISMA forma que el node pool de GKE (machineType de CE anidado en idx6) → reusa encodeGkeNodeT9 (reemplaza type/vCPU/mem/serie del catálogo CE, no quema specs). Sin mapearlo caía al default n1-standard-4. streaming_engine(705) bool. storage 713 + tipo 712.",
+      "servicio": {
+        "fixed": 51,
+        "soloServicio": true
+      },
+      "campos": {
+        "tipo": {
+          "fields": [
+            703
+          ],
+          "select": true
+        },
+        "region": {
+          "fields": [
+            725
+          ],
+          "select": true
+        },
+        "job_horas_mes": 706,
+        "nro_workers": 707,
+        "worker_machine_type": 708,
+        "streaming_engine": 705,
+        "storage_gib": 713,
+        "storage_tipo": {
+          "fields": [
+            712
+          ],
+          "select": true
+        }
+      }
+    },
+    "app_engine": {
+      "_nota": "Standard (svc 19) y Flexible (svc 20). Flexible cerrado 2026-07-22: campos 239 (disco)/241 (transferencia) traían constraint sin unidad → [13]; resuelto con captura jUj4td real (unidad 16 GiB confirmada, ver PRODUCT_FIELD_UNITS en src/productRegistry.ts). Transferencia hoy cotiza $0 — verificado que es precio real de Google (SKU 'AppEngine-Flexible-Egress' sin monto en la respuesta), no defecto del motor.",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "standard": 19,
+          "flexible": 20
+        },
+        "default": 19,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "standard": {
+          "region": {
+            "fields": [
+              234
+            ],
+            "select": true
+          },
+          "instance_class": {
+            "fields": [
+              235
+            ],
+            "select": true
+          },
+          "transfer_gib": 236,
+          "nro_instancias": 248
+        },
+        "flexible": {
+          "region": {
+            "fields": [
+              240
+            ],
+            "select": true
+          },
+          "vcpu_por_hora": 237,
+          "memoria_gib_por_hora": 238,
+          "disco_gib": {
+            "fields": [
+              239
+            ],
+            "unidad": 16
+          },
+          "transfer_gib": {
+            "fields": [
+              241
+            ],
+            "unidad": 16
+          }
+        }
+      }
+    },
+    "cloud_run": {
+      "_nota": "campos numéricos en forma t6 (PRODUCT_T6_FIELDS). use_case (1092) es un PRESET que es DUEÑO de vcpu/memoria/requests/concurrencia: la calculadora los re-deriva de la plantilla al interactuar, descartando lo que mandemos en el dl= (el link abre bien y colapsa al primer click). Por eso `defaults` fuerza 'custom' salvo que el plan pida un use_case explícito. GPU (887/888) requiere billing 'cpuAlwaysAllocated' (481) + toggle 886=true — sin eso el RPC cotiza la GPU en $0 mudo; cascada 'gpu_modelo' lo inyecta automático (verificado en vivo: L4 1x $595.77 vs $105.12 sin GPU).",
+      "servicio": {
+        "fixed": 56,
+        "soloServicio": true
+      },
+      "defaults": {
+        "1092": "custom"
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            478
+          ],
+          "select": true
+        },
+        "use_case": {
+          "fields": [
+            1092
+          ],
+          "select": true
+        },
+        "min_instancias": 483,
+        "requests_millones": 484,
+        "tiempo_ejecucion_ms": 485,
+        "concurrencia": 486,
+        "vcpu": 511,
+        "memoria_gib": 513,
+        "egress_gib": 1331,
+        "nro_recursos": 1096,
+        "gpu_modelo": {
+          "fields": [
+            887
+          ],
+          "select": true
+        },
+        "gpu_count": 888
+      },
+      "cascadas": {
+        "gpu_modelo": {
+          "nvidia-l4": {
+            "481": "cpuAlwaysAllocated",
+            "886": true
+          },
+          "nvidia-l4-zonal": {
+            "481": "cpuAlwaysAllocated",
+            "886": true
+          },
+          "nvidia-rtx-pro-6000": {
+            "481": "cpuAlwaysAllocated",
+            "886": true
+          },
+          "nvidia-rtx-pro-6000-zonal": {
+            "481": "cpuAlwaysAllocated",
+            "886": true
+          }
+        }
+      }
+    },
+    "apigee": {
+      "servicio": {
+        "fixed": 53,
+        "soloServicio": true
+      },
+      "campos": {
+        "tipo_entorno": {
+          "fields": [
+            522
+          ],
+          "select": true
+        },
+        "nro_environments": 523,
+        "nro_regiones": 524,
+        "proxy_deployments": 525,
+        "api_calls_estandar_millones": 526,
+        "api_calls_extensibles_millones": 527,
+        "analytics_addon": 528,
+        "api_security_addon": 529
+      }
+    },
+    "filestore_advanced": {
+      "_nota": "capacidad_tib es tipo 6; backup_storage_gib en GiB (PRODUCT_FIELD_UNITS); quirk 1072=false evita exigir IOPS. Sin servicio → primer servicio del esquema. minimos: el RPC acepta sub-mínimos (0.5 TiB→$128) pero es NO ordenable; se recorta a 1 TiB (Basic-SSD 2.5 TiB) con aviso.",
+      "campos": {
+        "region": {
+          "fields": [
+            1068
+          ],
+          "select": true
+        },
+        "nro_instancias": 1069,
+        "tier": {
+          "fields": [
+            1070
+          ],
+          "select": true
+        },
+        "capacidad_tib": 1071,
+        "capacidad_gib": {
+          "fields": [
+            1071
+          ],
+          "unidad": 16
+        },
+        "capacity_band": {
+          "fields": [
+            1076
+          ],
+          "select": true
+        },
+        "agregar_backup": 1074,
+        "backup_storage_gib": 1075,
+        "region_backup": {
+          "fields": [
+            1091
+          ],
+          "select": true
+        }
+      },
+      "bandas": {
+        "capacidad_tib": 1076
+      },
+      "minimos": {
+        "capacidad_tib": {
+          "min": 1,
+          "segunTier": {
+            "basic-ssd": 2.5
+          }
+        },
+        "capacidad_gib": {
+          "min": 1024,
+          "segunTier": {
+            "basic-ssd": 2560
+          }
+        }
+      }
+    },
+    "document_ai": {
+      "_nota": "fieldIds por servicio (General/Identity/Lending/Procurement/Workbench/Warehouse); contadores en miles (el campo se llena con el nº de miles, no el conteo crudo).",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "general": 1,
+          "identity": 3,
+          "lending": 4,
+          "procurement": 5,
+          "workbench": 15,
+          "warehouse": 16
+        },
+        "default": 1,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "general": {
+          "ocr_millares": 27,
+          "form_parser_millares": 28,
+          "otros_millares": 29
+        },
+        "identity": {
+          "fr_licencia_conduccion_millares": 31,
+          "fr_documento_identidad_millares": 32,
+          "fr_pasaporte_millares": 33,
+          "us_licencia_conduccion_millares": 34,
+          "us_pasaporte_millares": 35
+        },
+        "lending": {
+          "formulario_1040_millares": 37,
+          "formulario_1120_millares": 48,
+          "formulario_1120s_millares": 49,
+          "extracto_bancario_millares": 50,
+          "extracto_hipoteca_millares": 53,
+          "volante_pago_millares": 54,
+          "formulario_ssa1099_millares": 57,
+          "formulario_w2_millares": 59,
+          "formulario_w9_millares": 60,
+          "clasificador_documentos_prestamo_millares": 61
+        },
+        "procurement": {
+          "factura_millares": 62,
+          "recibo_gasto_millares": 63,
+          "factura_servicios_millares": 64,
+          "clasificador_documentos_compras_millares": 65
+        },
+        "workbench": {
+          "custom_extractor_millares": 181,
+          "splitter_millares": 182,
+          "classifier_millares": 183
+        },
+        "warehouse": {
+          "documentos_indexados_millares": 186,
+          "api_calls_millares": 187
+        }
+      }
+    },
+    "dataproc": {
+      "_nota": "2 servicios: serverless (83, Spark sin cluster, billing DCU×hora) y gce_gke (86, cluster clásico, lineal verificado). Bug de motor encontrado en 83: extractFields() lee fd[4] para el default pero 'horas_mes'(761) trae su default en otro índice → siempre null → $0 mudo sin error; extractUnit() además detecta mal la unidad. Forzado unidad=4 vía CampoMap.unidad (bypassa el bug sin tocar el parser genérico). Verificado en vivo 2026-07-22. RUPTURA 2026-10-30: Google rebrandeó a 'Managed Service for Apache Spark' y reestructuró svc 86 — 838 pasó de 'nº nodos' a 'nº de clusters' (multiplica cluster completo); nro_nodos remapeado a 814 'Number of normal worker nodes' (master implícito, no es field; min 2 en UI). Campo 'os' (840) desapareció del esquema, eliminado del mapeo — ya no hay selección de OS en esta tarjeta.",
+      "servicio": {
+        "param": "variante",
+        "opciones": {
+          "serverless": 83,
+          "gce_gke": 86
+        },
+        "default": 83,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "serverless": {
+          "region": {
+            "fields": [
+              760
+            ],
+            "select": true
+          },
+          "horas_mes": {
+            "fields": [
+              761
+            ],
+            "unidad": 4
+          },
+          "interactive": 762,
+          "vcpus": 763,
+          "memoria_por_vcpu_gib": 764,
+          "shuffle_storage_gib_por_vcpu": {
+            "fields": [
+              767
+            ],
+            "unidad": 16
+          },
+          "utilizacion_pct": {
+            "fields": [
+              768
+            ],
+            "unidad": 19
+          }
+        },
+        "gce_gke": {
+          "region": {
+            "fields": [
+              836
+            ],
+            "select": true
+          },
+          "nro_nodos": 814,
+          "horas_mes": 839
+        }
+      }
+    },
+    "speech_to_text": {
+      "servicio": {
+        "fixed": 76,
+        "soloServicio": true
+      },
+      "campos": {
+        "minutos": 366,
+        "modelo": {
+          "fields": [
+            367
+          ],
+          "select": true
+        },
+        "registro_datos": 368,
+        "lote_dinamico": 369
+      }
+    },
+    "cloud_gpu": {
+      "_nota": "Cloud GPU standalone (SKU Cloud-GPUs-*) — distinto de la GPU embebida en Compute Engine (que factura VM+GPU junto en catalog/compute-engine.json). El esquema mismo declara: NO incluye costo de VM/instancia, solo la GPU.",
+      "servicio": {
+        "fixed": 66,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            299
+          ],
+          "select": true
+        },
+        "modelo_gpu": {
+          "fields": [
+            300
+          ],
+          "select": true
+        },
+        "numero_maquinas": 301,
+        "tipo_maquina": {
+          "fields": [
+            554
+          ],
+          "select": true
+        },
+        "cud": {
+          "fields": [
+            553
+          ],
+          "select": true
+        }
+      }
+    },
+    "vmware_engine": {
+      "_nota": "impacto ALTO. nro_nodos escala lineal verificado en vivo (5/3 × base = exacto). familia_nodo/tipo_nodo/tipo_maquina forman una cascada (familia+tipo → lista de SKUs de máquina válidos).",
+      "servicio": {
+        "fixed": 91,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            906
+          ],
+          "select": true
+        },
+        "nro_nodos": 907,
+        "familia_nodo": {
+          "fields": [
+            912
+          ],
+          "select": true
+        },
+        "tipo_nodo": {
+          "fields": [
+            909
+          ],
+          "select": true
+        },
+        "tipo_maquina": {
+          "fields": [
+            913
+          ],
+          "select": true
+        },
+        "cud": {
+          "fields": [
+            910
+          ],
+          "select": true
+        },
+        "protegido": 911
+      }
+    },
+    "bare_metal": {
+      "_nota": "'plazo_compromiso'(580) es un SELECT con etiquetas numéricas (\"1\"/\"3\" años), no un numérico — el triage cero-token lo perturbó como número y por eso reportó [13] (UNIT-FIX falso positivo); no requiere unidad forzada.",
+      "servicio": {
+        "fixed": 62,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            578
+          ],
+          "select": true
+        },
+        "configuracion_servidor": {
+          "fields": [
+            579
+          ],
+          "select": true
+        },
+        "plazo_compromiso": {
+          "fields": [
+            580
+          ],
+          "select": true
+        },
+        "tipo_almacenamiento_1": {
+          "fields": [
+            581
+          ],
+          "select": true
+        },
+        "cantidad_almacenamiento_1": 582,
+        "tipo_almacenamiento_2": {
+          "fields": [
+            651
+          ],
+          "select": true
+        },
+        "cantidad_almacenamiento_2": 652,
+        "tipo_almacenamiento_3": {
+          "fields": [
+            653
+          ],
+          "select": true
+        },
+        "cantidad_almacenamiento_3": 654,
+        "interconnect_gbps": 583,
+        "soporte_sap_hana": 584
+      }
+    },
+    "kafka": {
+      "servicio": {
+        "fixed": 101,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            995
+          ],
+          "select": true
+        },
+        "ancho_banda_productor_mib_s": 996,
+        "ancho_banda_consumidor_mib_s": 997,
+        "retencion_dias": 998,
+        "utilizacion_vcpu_pct": 999,
+        "particiones_totales": 1000,
+        "num_replicas": 1001,
+        "ram_gib_por_vcpu": 1002,
+        "usar_replica_local": 1003,
+        "cud": {
+          "fields": [
+            1004
+          ],
+          "select": true
+        }
+      }
+    },
+    "managed_lustre": {
+      "servicio": {
+        "fixed": 123,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            1450
+          ],
+          "select": true
+        },
+        "nro_instancias": 1449,
+        "tier_rendimiento": {
+          "fields": [
+            1452
+          ],
+          "select": true
+        },
+        "tamano_gib": 1451,
+        "duracion_meses": 1453
+      }
+    },
+    "cloud_run_functions": {
+      "_nota": "campo 375 (mínimo de instancias) tiene default null en el esquema → RPC [13] si queda vacío; el motor SIEMPRE debe rellenarlo (0 si el usuario no especifica).",
+      "descontinuado": "Usa 'cloud_run' (Cloud Run functions corre sobre la misma infraestructura de Cloud Run y su pricing de servicios se cotiza ahí).",
+      "servicio": {
+        "fixed": 55,
+        "soloServicio": true
+      },
+      "defaults": {
+        "375": 0
+      },
+      "campos": {
+        "version": {
+          "fields": [
+            363
+          ],
+          "select": true
+        },
+        "region": {
+          "fields": [
+            370
+          ],
+          "select": true
+        },
+        "memoria": {
+          "fields": [
+            371
+          ],
+          "select": true
+        },
+        "solicitudes_millones_mes": 372,
+        "duracion_promedio_ms": 373,
+        "transferencia_gib_por_solicitud": 374,
+        "instancias_minimas": 375,
+        "concurrencia_por_instancia": 376
+      }
+    },
+    "media_cdn": {
+      "servicio": {
+        "fixed": 116,
+        "soloServicio": true
+      },
+      "campos": {
+        "egress_asia_pacifico_gib": 1355,
+        "egress_china_corea_gib": 1356,
+        "egress_europa_gib": 1357,
+        "egress_norteamerica_gib": 1358,
+        "egress_oceania_gib": 1359,
+        "egress_latam_gib": 1360,
+        "egress_india_gib": 1361,
+        "egress_medio_oriente_gib": 1362,
+        "egress_otros_destinos_gib": 1363,
+        "solicitudes_http_millones_mes": 1364
+      }
+    },
+    "dns_armor": {
+      "servicio": {
+        "fixed": 124,
+        "soloServicio": true
+      },
+      "campos": {
+        "cargas_activas_por_hora": 1454,
+        "consultas_externas_por_hora": 1455
+      }
+    },
+    "gemini_enterprise": {
+      "_nota": "Mapeado 2026-07-22 (ediciones/asientos) + 2026-09-17 (Google reactivo el producto el 2026-09-16 con tarifa por token de modelo -- ver catalog/product-status.json). 3 ediciones = 3 servicios (Business 126 / Standard 127 / Plus 132), tarifa plana por asiento (1/0/0). Standard y Plus ademas traen 146 campos de tarifa por TOKEN de modelo (Gemini 2.5/3.0/3.1/3.5/3.6 x PRO/FLASH/FLASH_LITE/FLASH_IMAGE x texto/audio/imagen/video x input/output/caching x global/regional/long), generados en catalog/gemini-enterprise.json por research/gen-gemini-ent-catalog.ts desde el metadato tag [\"tier\",...]/[\"variant\",...] del esquema real (no hardcodeado) -- Business (126) NO los trae (solo 2 campos: asientos). Los campos \"...(Tokens)\" tarifan por MILLON de tokens (verificado en vivo: 1623=1 -> $1.25 exacto, lineal) -- se declaran con divisor:1e6 en el catalogo para que la spec reciba el conteo CRUDO de tokens (semanticPlan.ts, campo CampoMap.divisor, generico). CADA VERSION Gemini tiene un selector \"Model Tier\" unico: solo el tier activo factura, los demas quedan en $0 mudo -- el triage cero-token (npm run map) los marco NEEDS-QUIRK/ROTO por esto (falso negativo: eran PRICEABLE, solo faltaba forzar el tier). src/geminiEnterpriseCatalog.ts (forzarTierGemini, enganchado en src/quote.ts) infiere que tier tocar de los fieldIds usados y fuerza el selector -- fail-loud si el plan mezcla dos tiers de la misma version Gemini (imposible de facturar a la vez). Grounding/Armor/imagen/video-gen: campos numericos directos, ya priceable (varios con franquicia gratuita alta -- por eso el triage con perturbaciones chicas tambien los marco NEEDS-QUIRK, otro falso negativo). PENDIENTE (fuera de alcance, ver docs/DEUDA-TECNICA.md): Frontline edition (campos 1663/1665/1830) vive en otro flujo, no confirmado -- claves no mapeadas, fail-loud si un plan las usa. Pay-as-you-go (edicion 129) no incluida (sin verificar asientos).",
+      "servicio": {
+        "param": "edicion",
+        "opciones": {
+          "business": 126,
+          "standard": 127,
+          "plus": 132
+        },
+        "default": 127,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "business": {
+          "asientos": 1537
+        },
+        "standard": {
+          "asientos": 1535,
+          "storage_gib": 1661,
+          "agent_platform_compute": 1642,
+          "agent_platform_storage": 1568,
+          "agent_platform_memory": 1569,
+          "org_armor_tokens": 1570,
+          "armor_tokens_premium": 1629,
+          "armor_tokens_subscription": 1630,
+          "image_generation_imagen3": 1937,
+          "image_generation_imagen4": 1885,
+          "video_generation_veo2": 1936,
+          "video_generation_veo3_fast": 1880,
+          "grounding_gemini25pro_google_search": 1940,
+          "grounding_1p3p_data": 1941,
+          "grounding_google_search": 1939,
+          "grounding_enterprise_web": 1947,
+          "grounding_large_text_embedding": 1938,
+          "g36_flash_text_input_global_tokens": {
+            "fields": [
+              2145
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_text_input_caching_global": 2147,
+          "g36_flash_text_output_global_tokens": {
+            "fields": [
+              2162
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_global_tokens": {
+            "fields": [
+              2170
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_caching_global": 2172,
+          "g36_flash_image_input_global_tokens": {
+            "fields": [
+              2179
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_image_input_caching_global": 2181,
+          "g36_flash_video_input_global_tokens": {
+            "fields": [
+              2188
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_video_input_caching_global": 2190,
+          "g36_flash_text_input_regional_tokens": {
+            "fields": [
+              2154
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_text_input_caching_regional": 2156,
+          "g36_flash_text_output_regional_tokens": {
+            "fields": [
+              2166
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_regional_tokens": {
+            "fields": [
+              2197
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_caching_regional": 2199,
+          "g36_flash_image_input_regional_tokens": {
+            "fields": [
+              2205
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_image_input_caching_regional": 2207,
+          "g36_flash_video_input_regional_tokens": {
+            "fields": [
+              2213
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_video_input_caching_regional": 2215,
+          "g35_flash_text_input_global_tokens": {
+            "fields": [
+              1962
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_text_input_caching_global": 1994,
+          "g35_flash_text_output_global_tokens": {
+            "fields": [
+              1984
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_input_global_tokens": {
+            "fields": [
+              2040
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_caching_global": 2057,
+          "g35_flash_image_input_global_tokens": {
+            "fields": [
+              2002
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_image_caching_global": 2026,
+          "g35_flash_video_input_global_tokens": {
+            "fields": [
+              2037
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_text_input_regional_tokens": {
+            "fields": [
+              1948
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_text_input_caching_regional": 1958,
+          "g35_flash_text_output_regional_tokens": {
+            "fields": [
+              1953
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_input_regional_tokens": {
+            "fields": [
+              2009
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_caching_regional": 2030,
+          "g35_flash_image_input_regional_tokens": {
+            "fields": [
+              1968
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_image_caching_regional": 1978,
+          "g35_flash_video_input_regional_tokens": {
+            "fields": [
+              2015
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_video_caching_regional": 2041,
+          "g35_flash_lite_text_input_global_tokens": {
+            "fields": [
+              2068
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_text_input_caching_global": 2070,
+          "g35_flash_lite_text_output_global_tokens": {
+            "fields": [
+              2085
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_global_tokens": {
+            "fields": [
+              2093
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_caching_global": 2095,
+          "g35_flash_lite_image_input_global_tokens": {
+            "fields": [
+              2102
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_image_input_caching_global": 2104,
+          "g35_flash_lite_video_input_global_tokens": {
+            "fields": [
+              2111
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_video_input_caching_global": 2113,
+          "g35_flash_lite_text_input_regional_tokens": {
+            "fields": [
+              2077
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_text_input_caching_regional": 2079,
+          "g35_flash_lite_text_output_regional_tokens": {
+            "fields": [
+              2089
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_regional_tokens": {
+            "fields": [
+              2120
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_caching_regional": 2122,
+          "g35_flash_lite_image_input_regional_tokens": {
+            "fields": [
+              2128
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_image_input_caching_regional": 2130,
+          "g35_flash_lite_video_input_regional_tokens": {
+            "fields": [
+              2136
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_video_input_caching_regional": 2138,
+          "g31_flash_image_text_input_global_tokens": {
+            "fields": [
+              1857
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_image_text_output_global_tokens": {
+            "fields": [
+              1859
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_image_image_input_images": 1858,
+          "g31_flash_image_image_input_tokens": {
+            "fields": [
+              1960
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_image_image_caching": 1983,
+          "g31_flash_image_image_output_images": 1860,
+          "g31_flash_lite_text_input_global_tokens": {
+            "fields": [
+              1850
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_text_input_regional_tokens": {
+            "fields": [
+              1854
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_text_caching_global": 1852,
+          "g31_flash_lite_text_caching_regional": 1856,
+          "g31_flash_lite_text_output_global_tokens": {
+            "fields": [
+              1851
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_text_output_regional_tokens": {
+            "fields": [
+              1855
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_image_input_images": 1853,
+          "g30_pro_text_input_tokens": {
+            "fields": [
+              1602
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_text_caching": 1955,
+          "g30_pro_text_output_tokens": {
+            "fields": [
+              1583
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_audio_input_audio_seconds": 1920,
+          "g30_pro_audio_caching": 1999,
+          "g30_pro_image_input_images": 1581,
+          "g30_pro_image_caching": 1959,
+          "g30_pro_image_output_images": 1595,
+          "g30_pro_video_input_video_seconds": 1922,
+          "g30_pro_video_caching": 1996,
+          "g30_pro_text_input_long_tokens": {
+            "fields": [
+              1627
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_text_caching_long": 1954,
+          "g30_pro_text_output_long_tokens": {
+            "fields": [
+              1587
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_audio_input_long_audio_seconds": 1921,
+          "g30_pro_audio_caching_long": 2004,
+          "g30_pro_image_input_long_images": 1918,
+          "g30_pro_image_caching_long": 1964,
+          "g30_pro_image_output_long_images": 1919,
+          "g30_pro_video_input_long_video_seconds": 1923,
+          "g30_pro_video_caching_long": 2006,
+          "g30_flash_text_input_tokens": {
+            "fields": [
+              1950
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_text_caching": 1967,
+          "g30_flash_text_output_tokens": {
+            "fields": [
+              1949
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_audio_input_tokens": {
+            "fields": [
+              1992
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_audio_caching": 2022,
+          "g30_flash_video_input_tokens": {
+            "fields": [
+              1993
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_video_caching": 2028,
+          "g25_pro_text_input_tokens": {
+            "fields": [
+              1623
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_text_caching": 1966,
+          "g25_pro_text_output_tokens": {
+            "fields": [
+              1615
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_thinking_text_output_tokens": {
+            "fields": [
+              1945
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_audio_input_audio_seconds": 1928,
+          "g25_pro_audio_caching": 2011,
+          "g25_pro_image_input_images": 1924,
+          "g25_pro_image_caching": 1986,
+          "g25_pro_video_input_video_seconds": 1926,
+          "g25_pro_video_caching": 1990,
+          "g25_pro_text_input_long_tokens": {
+            "fields": [
+              1593
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_text_caching_long": 1969,
+          "g25_pro_text_output_long_tokens": {
+            "fields": [
+              1590
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_thinking_text_output_long_tokens": {
+            "fields": [
+              1970
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_audio_input_long_audio_seconds": 1929,
+          "g25_pro_audio_caching_long": 2017,
+          "g25_pro_image_input_long_images": 1925,
+          "g25_pro_image_caching_long": 1988,
+          "g25_pro_video_input_long_video_seconds": 1927,
+          "g25_pro_video_caching_long": 2008,
+          "g25_flash_text_input_tokens": {
+            "fields": [
+              1942
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_text_input_tokens": {
+            "fields": [
+              1934
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_caching": 1957,
+          "g25_flash_text_output_tokens": {
+            "fields": [
+              1946
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_text_output_tokens": {
+            "fields": [
+              1935
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_output_thinking_on_tokens": {
+            "fields": [
+              1944
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_thinking_text_output_tokens": {
+            "fields": [
+              1943
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_audio_input_ga_tokens": {
+            "fields": [
+              2007
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_audio_input_audio_seconds": 1932,
+          "g25_flash_audio_caching": 2035,
+          "g25_flash_live_audio_output_av2a_audio_seconds": {
+            "fields": [
+              2016
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_audio_output_audio_seconds": 1933,
+          "g25_flash_image_input_images": 1981,
+          "g25_flash_image_caching_ga": 2013,
+          "g25_flash_image_output_images": 1599,
+          "g25_flash_video_input_ga_tokens": {
+            "fields": [
+              1998
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_video_caching_ga": 2032,
+          "g25_flash_text_input_long_tokens": {
+            "fields": [
+              1961
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_caching_long": 1995,
+          "g25_flash_text_output_long_tokens": {
+            "fields": [
+              2018
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_output_thinking_on_long_tokens": {
+            "fields": [
+              1982
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_thinking_text_output_long_tokens": {
+            "fields": [
+              1987
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_audio_input_long_tokens": {
+            "fields": [
+              2023
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_audio_caching_long": 2048,
+          "g25_flash_image_input_long_images": 2012,
+          "g25_flash_image_caching_long": 2044,
+          "g25_flash_video_input_long_tokens": {
+            "fields": [
+              2029
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_video_caching_long": 2050,
+          "g25_flash_lite_text_input_tokens": {
+            "fields": [
+              1956
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_lite_text_caching": 1991,
+          "g25_flash_lite_text_output_tokens": {
+            "fields": [
+              1963
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_lite_thinking_text_output_tokens": {
+            "fields": [
+              1965
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_lite_image_input_images": {
+            "fields": [
+              2065
+            ],
+            "divisor": 1000000
+          }
+        },
+        "plus": {
+          "asientos": 1534,
+          "storage_gib": 1662,
+          "agent_platform_compute": 1642,
+          "agent_platform_storage": 1568,
+          "agent_platform_memory": 1569,
+          "org_armor_tokens": 1570,
+          "armor_tokens_premium": 1629,
+          "armor_tokens_subscription": 1630,
+          "image_generation_imagen3": 1937,
+          "image_generation_imagen4": 1885,
+          "video_generation_veo2": 1936,
+          "video_generation_veo3_fast": 1880,
+          "grounding_gemini25pro_google_search": 1940,
+          "grounding_1p3p_data": 1941,
+          "grounding_google_search": 1939,
+          "grounding_enterprise_web": 1947,
+          "grounding_large_text_embedding": 1938,
+          "g36_flash_text_input_global_tokens": {
+            "fields": [
+              2145
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_text_input_caching_global": 2147,
+          "g36_flash_text_output_global_tokens": {
+            "fields": [
+              2162
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_global_tokens": {
+            "fields": [
+              2170
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_caching_global": 2172,
+          "g36_flash_image_input_global_tokens": {
+            "fields": [
+              2179
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_image_input_caching_global": 2181,
+          "g36_flash_video_input_global_tokens": {
+            "fields": [
+              2188
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_video_input_caching_global": 2190,
+          "g36_flash_text_input_regional_tokens": {
+            "fields": [
+              2154
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_text_input_caching_regional": 2156,
+          "g36_flash_text_output_regional_tokens": {
+            "fields": [
+              2166
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_regional_tokens": {
+            "fields": [
+              2197
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_audio_input_caching_regional": 2199,
+          "g36_flash_image_input_regional_tokens": {
+            "fields": [
+              2205
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_image_input_caching_regional": 2207,
+          "g36_flash_video_input_regional_tokens": {
+            "fields": [
+              2213
+            ],
+            "divisor": 1000000
+          },
+          "g36_flash_video_input_caching_regional": 2215,
+          "g35_flash_text_input_global_tokens": {
+            "fields": [
+              1962
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_text_input_caching_global": 1994,
+          "g35_flash_text_output_global_tokens": {
+            "fields": [
+              1984
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_input_global_tokens": {
+            "fields": [
+              2040
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_caching_global": 2057,
+          "g35_flash_image_input_global_tokens": {
+            "fields": [
+              2002
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_image_caching_global": 2026,
+          "g35_flash_video_input_global_tokens": {
+            "fields": [
+              2037
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_text_input_regional_tokens": {
+            "fields": [
+              1948
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_text_input_caching_regional": 1958,
+          "g35_flash_text_output_regional_tokens": {
+            "fields": [
+              1953
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_input_regional_tokens": {
+            "fields": [
+              2009
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_audio_caching_regional": 2030,
+          "g35_flash_image_input_regional_tokens": {
+            "fields": [
+              1968
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_image_caching_regional": 1978,
+          "g35_flash_video_input_regional_tokens": {
+            "fields": [
+              2015
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_video_caching_regional": 2041,
+          "g35_flash_lite_text_input_global_tokens": {
+            "fields": [
+              2068
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_text_input_caching_global": 2070,
+          "g35_flash_lite_text_output_global_tokens": {
+            "fields": [
+              2085
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_global_tokens": {
+            "fields": [
+              2093
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_caching_global": 2095,
+          "g35_flash_lite_image_input_global_tokens": {
+            "fields": [
+              2102
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_image_input_caching_global": 2104,
+          "g35_flash_lite_video_input_global_tokens": {
+            "fields": [
+              2111
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_video_input_caching_global": 2113,
+          "g35_flash_lite_text_input_regional_tokens": {
+            "fields": [
+              2077
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_text_input_caching_regional": 2079,
+          "g35_flash_lite_text_output_regional_tokens": {
+            "fields": [
+              2089
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_regional_tokens": {
+            "fields": [
+              2120
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_audio_input_caching_regional": 2122,
+          "g35_flash_lite_image_input_regional_tokens": {
+            "fields": [
+              2128
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_image_input_caching_regional": 2130,
+          "g35_flash_lite_video_input_regional_tokens": {
+            "fields": [
+              2136
+            ],
+            "divisor": 1000000
+          },
+          "g35_flash_lite_video_input_caching_regional": 2138,
+          "g31_flash_image_text_input_global_tokens": {
+            "fields": [
+              1857
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_image_text_output_global_tokens": {
+            "fields": [
+              1859
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_image_image_input_images": 1858,
+          "g31_flash_image_image_input_tokens": {
+            "fields": [
+              1960
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_image_image_caching": 1983,
+          "g31_flash_image_image_output_images": 1860,
+          "g31_flash_lite_text_input_global_tokens": {
+            "fields": [
+              1850
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_text_input_regional_tokens": {
+            "fields": [
+              1854
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_text_caching_global": 1852,
+          "g31_flash_lite_text_caching_regional": 1856,
+          "g31_flash_lite_text_output_global_tokens": {
+            "fields": [
+              1851
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_text_output_regional_tokens": {
+            "fields": [
+              1855
+            ],
+            "divisor": 1000000
+          },
+          "g31_flash_lite_image_input_images": 1853,
+          "g30_pro_text_input_tokens": {
+            "fields": [
+              1602
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_text_caching": 1955,
+          "g30_pro_text_output_tokens": {
+            "fields": [
+              1583
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_audio_input_audio_seconds": 1920,
+          "g30_pro_audio_caching": 1999,
+          "g30_pro_image_input_images": 1581,
+          "g30_pro_image_caching": 1959,
+          "g30_pro_image_output_images": 1595,
+          "g30_pro_video_input_video_seconds": 1922,
+          "g30_pro_video_caching": 1996,
+          "g30_pro_text_input_long_tokens": {
+            "fields": [
+              1627
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_text_caching_long": 1954,
+          "g30_pro_text_output_long_tokens": {
+            "fields": [
+              1587
+            ],
+            "divisor": 1000000
+          },
+          "g30_pro_audio_input_long_audio_seconds": 1921,
+          "g30_pro_audio_caching_long": 2004,
+          "g30_pro_image_input_long_images": 1918,
+          "g30_pro_image_caching_long": 1964,
+          "g30_pro_image_output_long_images": 1919,
+          "g30_pro_video_input_long_video_seconds": 1923,
+          "g30_pro_video_caching_long": 2006,
+          "g30_flash_text_input_tokens": {
+            "fields": [
+              1950
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_text_caching": 1967,
+          "g30_flash_text_output_tokens": {
+            "fields": [
+              1949
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_audio_input_tokens": {
+            "fields": [
+              1992
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_audio_caching": 2022,
+          "g30_flash_video_input_tokens": {
+            "fields": [
+              1993
+            ],
+            "divisor": 1000000
+          },
+          "g30_flash_video_caching": 2028,
+          "g25_pro_text_input_tokens": {
+            "fields": [
+              1623
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_text_caching": 1966,
+          "g25_pro_text_output_tokens": {
+            "fields": [
+              1615
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_thinking_text_output_tokens": {
+            "fields": [
+              1945
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_audio_input_audio_seconds": 1928,
+          "g25_pro_audio_caching": 2011,
+          "g25_pro_image_input_images": 1924,
+          "g25_pro_image_caching": 1986,
+          "g25_pro_video_input_video_seconds": 1926,
+          "g25_pro_video_caching": 1990,
+          "g25_pro_text_input_long_tokens": {
+            "fields": [
+              1593
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_text_caching_long": 1969,
+          "g25_pro_text_output_long_tokens": {
+            "fields": [
+              1590
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_thinking_text_output_long_tokens": {
+            "fields": [
+              1970
+            ],
+            "divisor": 1000000
+          },
+          "g25_pro_audio_input_long_audio_seconds": 1929,
+          "g25_pro_audio_caching_long": 2017,
+          "g25_pro_image_input_long_images": 1925,
+          "g25_pro_image_caching_long": 1988,
+          "g25_pro_video_input_long_video_seconds": 1927,
+          "g25_pro_video_caching_long": 2008,
+          "g25_flash_text_input_tokens": {
+            "fields": [
+              1942
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_text_input_tokens": {
+            "fields": [
+              1934
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_caching": 1957,
+          "g25_flash_text_output_tokens": {
+            "fields": [
+              1946
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_text_output_tokens": {
+            "fields": [
+              1935
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_output_thinking_on_tokens": {
+            "fields": [
+              1944
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_thinking_text_output_tokens": {
+            "fields": [
+              1943
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_audio_input_ga_tokens": {
+            "fields": [
+              2007
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_audio_input_audio_seconds": 1932,
+          "g25_flash_audio_caching": 2035,
+          "g25_flash_live_audio_output_av2a_audio_seconds": {
+            "fields": [
+              2016
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_live_audio_output_audio_seconds": 1933,
+          "g25_flash_image_input_images": 1981,
+          "g25_flash_image_caching_ga": 2013,
+          "g25_flash_image_output_images": 1599,
+          "g25_flash_video_input_ga_tokens": {
+            "fields": [
+              1998
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_video_caching_ga": 2032,
+          "g25_flash_text_input_long_tokens": {
+            "fields": [
+              1961
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_caching_long": 1995,
+          "g25_flash_text_output_long_tokens": {
+            "fields": [
+              2018
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_text_output_thinking_on_long_tokens": {
+            "fields": [
+              1982
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_thinking_text_output_long_tokens": {
+            "fields": [
+              1987
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_audio_input_long_tokens": {
+            "fields": [
+              2023
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_audio_caching_long": 2048,
+          "g25_flash_image_input_long_images": 2012,
+          "g25_flash_image_caching_long": 2044,
+          "g25_flash_video_input_long_tokens": {
+            "fields": [
+              2029
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_video_caching_long": 2050,
+          "g25_flash_lite_text_input_tokens": {
+            "fields": [
+              1956
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_lite_text_caching": 1991,
+          "g25_flash_lite_text_output_tokens": {
+            "fields": [
+              1963
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_lite_thinking_text_output_tokens": {
+            "fields": [
+              1965
+            ],
+            "divisor": 1000000
+          },
+          "g25_flash_lite_image_input_images": {
+            "fields": [
+              2065
+            ],
+            "divisor": 1000000
+          }
+        }
+      }
+    },
+    "recaptcha": {
+      "_nota": "Mapeado 2026-09-24. El triage de julio lo marcaba $0 mudo: era franquicia gratis (perturbaba con 1000); con volumen real cotiza directo. Google aplica la franquicia.",
+      "campos": {
+        "assessments_mes": 927
+      }
+    },
+    "workload_manager": {
+      "_nota": "Mapeado 2026-09-24. El triage de julio lo marcaba $0 mudo: era franquicia gratis (perturbaba con 1000); con volumen real cotiza directo. Google aplica la franquicia.",
+      "campos": {
+        "evaluaciones_recursos_mes": 1411
+      }
+    },
+    "parameter_manager": {
+      "_nota": "Mapeado 2026-09-24. El triage de julio lo marcaba $0 mudo: era franquicia gratis (perturbaba con 1000); con volumen real cotiza directo. Google aplica la franquicia.",
+      "campos": {
+        "llamadas_acceso_mes": 1365,
+        "versiones_almacenadas": 1366
+      }
+    },
+    "video_intelligence": {
+      "_nota": "Mapeado 2026-09-24. El triage de julio lo marcaba $0 mudo: era franquicia gratis (perturbaba con 1000); con volumen real cotiza directo. Google aplica la franquicia. Minutos de video por mes; claves _streaming = anotación en streaming (736-739), el resto = video almacenado (726-735).",
+      "campos": {
+        "etiquetas_min": 726,
+        "tomas_min": 727,
+        "contenido_explicito_min": 728,
+        "transcripcion_min": 729,
+        "seguimiento_objetos_min": 730,
+        "texto_min": 731,
+        "logos_min": 732,
+        "rostros_min": 733,
+        "personas_min": 734,
+        "celebridades_min": 735,
+        "etiquetas_streaming_min": 736,
+        "tomas_streaming_min": 737,
+        "contenido_explicito_streaming_min": 738,
+        "seguimiento_objetos_streaming_min": 739
+      }
+    },
+    "cloud_translation": {
+      "_nota": "Mapeado 2026-09-24. El triage de julio lo marcaba $0 mudo: era franquicia gratis (perturbaba con 1000); con volumen real cotiza directo. Google aplica la franquicia. edicion basic (svc 17, default) | advanced (svc 18). Advanced trae 50M caracteres de traducción por defecto en 227 ($1000 fantasma) → se anula a 0. Sin mapear (Δ0 en triage, fail-loud si se piden): modelo custom 225, pares de entrenamiento 233, idiomas destino 232, lote de documentos 298.",
+      "servicio": {
+        "param": "edicion",
+        "opciones": {
+          "basic": 17,
+          "advanced": 18
+        },
+        "default": 17,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "basic": {
+          "caracteres_traduccion_mes": 12,
+          "caracteres_deteccion_mes": 13,
+          "paginas_documentos_mes": 14
+        },
+        "advanced": {
+          "caracteres_deteccion_mes": 226,
+          "caracteres_traduccion_mes": 227,
+          "caracteres_traduccion_lote_mes": 228,
+          "caracteres_xlsx_mes": 297,
+          "caracteres_xlsx_lote_mes": 229,
+          "caracteres_romanizar_mes": 230,
+          "paginas_documentos_mes": 231
+        }
+      },
+      "defaultsPorVariante": {
+        "advanced": {
+          "227": 0
+        }
+      }
+    },
+    "maps_platform": {
+      "_nota": "Mapeado 2026-09-24. Solicitudes por MES. Cada campo solo factura si el selector API de su servicio (1056/1097/1124/1167) está en la API a la que pertenece: el motor lo fuerza leyendo las reglas de visibilidad del esquema (gatePorVisibilidad). Un ítem = una API; varias APIs del mismo servicio = varios ítems (si se mezclan, error). Sin mapear (sin regla de visibilidad, cotizan $0 o no existen): 1060 Maps SDK y 1064 Street View Metadata (gratis), 1129, 1141, 1142. Tope UI: 10M solicitudes por campo.",
+      "gatePorVisibilidad": true,
+      "servicio": {
+        "param": "servicio",
+        "opciones": {
+          "maps": 104,
+          "routes": 107,
+          "places": 108,
+          "environment": 110
+        },
+        "default": 104,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "maps": {
+          "mapas_dinamicos_mes": 1057,
+          "street_view_dinamico_mes": 1058,
+          "mapas_inmersivos_mes": 1829,
+          "street_view_estatico_mes": 1059,
+          "mapas_estaticos_mes": 1063,
+          "aerial_view_mes": 1061,
+          "tiles_2d_mes": 1065,
+          "tiles_street_view_mes": 1067,
+          "tiles_3d_fotorrealistas_mes": 1066,
+          "elevacion_mes": 1305
+        },
+        "routes": {
+          "navigation_sdk_mes": 1102,
+          "optimizacion_un_vehiculo_mes": 1104,
+          "optimizacion_flota_mes": 1103,
+          "roads_carretera_cercana_mes": 1105,
+          "roads_ruta_recorrida_mes": 1107,
+          "matriz_rutas_essentials_mes": 1109,
+          "matriz_rutas_pro_mes": 1108,
+          "matriz_rutas_enterprise_mes": 1110,
+          "rutas_essentials_mes": 1112,
+          "rutas_pro_mes": 1111,
+          "rutas_enterprise_mes": 1113
+        },
+        "places": {
+          "validacion_direcciones_pro_mes": 1126,
+          "validacion_direcciones_enterprise_mes": 1125,
+          "autocomplete_mes": 1127,
+          "geocoding_mes": 1130,
+          "geolocalizacion_mes": 1131,
+          "nearby_search_pro_mes": 1133,
+          "nearby_search_enterprise_mes": 1132,
+          "nearby_search_enterprise_atmosphere_mes": 1134,
+          "place_details_essentials_mes": 1138,
+          "place_details_pro_mes": 1136,
+          "place_details_enterprise_mes": 1135,
+          "place_details_enterprise_atmosphere_mes": 1139,
+          "places_aggregate_mes": 1140,
+          "place_photos_mes": 1154,
+          "text_search_pro_mes": 1156,
+          "text_search_enterprise_mes": 1155,
+          "text_search_enterprise_atmosphere_mes": 1158,
+          "maps_grounding_lite_mes": 1828,
+          "zona_horaria_mes": 1159,
+          "places_ui_kit_query_mes": 1306,
+          "places_ui_kit_autocomplete_sesion_mes": 1307,
+          "places_ui_kit_pro_mes": 1827
+        },
+        "environment": {
+          "calidad_aire_mes": 1168,
+          "polen_mes": 1169,
+          "solar_building_insights_mes": 1170,
+          "solar_data_layers_mes": 1171,
+          "clima_mes": 1308
+        }
+      },
+      "topesDelEsquema": true
+    },
+    "cloud_healthcare": {
+      "_nota": "Mapeado PARCIAL 2026-09-24 (Google arregló el [13] de julio). Almacenamiento en GiB-mes; export/transcodificación en GiB procesados. Sin mapear (fail-loud): 1267 Blob Data Storage (se SUMA a las clases 1268-1271 → doble cobro si se llenan ambos), 1278 Consent Requests y 1280 Streaming Export (cotizan $0 aun con 1e6).",
+      "servicio": {
+        "fixed": 112,
+        "soloServicio": true
+      },
+      "campos": {
+        "region": {
+          "fields": [
+            1265
+          ],
+          "select": true
+        },
+        "almacenamiento_estructurado_gib": {
+          "fields": [
+            1266
+          ],
+          "unidad": 16
+        },
+        "almacenamiento_standard_gib": {
+          "fields": [
+            1268
+          ],
+          "unidad": 16
+        },
+        "almacenamiento_nearline_gib": {
+          "fields": [
+            1269
+          ],
+          "unidad": 16
+        },
+        "almacenamiento_coldline_gib": {
+          "fields": [
+            1270
+          ],
+          "unidad": 16
+        },
+        "almacenamiento_archive_gib": {
+          "fields": [
+            1271
+          ],
+          "unidad": 16
+        },
+        "consentimientos_gestionados": 1272,
+        "politicas_consentimiento_admin": 1273,
+        "requests_estandar_mes": 1274,
+        "requests_complejas_mes": 1275,
+        "requests_multi_operacion_mes": 1276,
+        "requests_avanzadas_mes": 1277,
+        "export_lote_gib": {
+          "fields": [
+            1279
+          ],
+          "unidad": 16
+        },
+        "transcodificacion_dicom_gib": {
+          "fields": [
+            1281
+          ],
+          "unidad": 16
+        }
+      }
+    },
+    "netapp_volumes": {
+      "_nota": "Mapeado PARCIAL 2026-09-24. nivel_servicio standard|premium|extreme (mismo svc 75; el motor fija el select 660). Flex FUERA: el link abre al precio del motor pero al tocarlo se desinfla ~×0.52 (npm run roundtrip / verificarLink, 2026-09-24) — sin capturar la causa, pedir flex falla fuerte. Sin mapear (fail-loud): rendimiento custom Flex (1286/1283/1284), auto-tier (1285/1287) y replicación (1309/657/658): visibilidad por región/nivel.",
+      "servicio": {
+        "param": "nivel_servicio",
+        "opciones": {
+          "standard": 75,
+          "premium": 75,
+          "extreme": 75
+        },
+        "default": 75,
+        "soloServicio": true
+      },
+      "camposPorVariante": {
+        "standard": {
+          "region": {
+            "fields": [
+              655
+            ],
+            "select": true
+          },
+          "capacidad_pool_tib": {
+            "fields": [
+              656
+            ],
+            "unidad": 17
+          },
+          "datos_backup_gib": {
+            "fields": [
+              659
+            ],
+            "unidad": 16
+          }
+        },
+        "premium": {
+          "region": {
+            "fields": [
+              655
+            ],
+            "select": true
+          },
+          "capacidad_pool_tib": {
+            "fields": [
+              656
+            ],
+            "unidad": 17
+          },
+          "datos_backup_gib": {
+            "fields": [
+              659
+            ],
+            "unidad": 16
+          }
+        },
+        "extreme": {
+          "region": {
+            "fields": [
+              655
+            ],
+            "select": true
+          },
+          "capacidad_pool_tib": {
+            "fields": [
+              656
+            ],
+            "unidad": 17
+          },
+          "datos_backup_gib": {
+            "fields": [
+              659
+            ],
+            "unidad": 16
+          }
+        }
+      },
+      "defaultsPorVariante": {
+        "standard": {
+          "660": "standard"
+        },
+        "premium": {
+          "660": "premium"
+        },
+        "extreme": {
+          "660": "extreme"
+        }
+      }
+    }
+  }
+}
